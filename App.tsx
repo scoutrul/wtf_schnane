@@ -5,29 +5,55 @@ import { DIFFICULTY_CONFIG } from './constants';
 import { GameView } from './components/GameView';
 import { Shop } from './components/Shop';
 import { Button } from './components/Button';
+import { storageGetItem, storageSetItem } from './services/yandexStorage';
 
 const STORAGE_KEY = 'pepi_fashnel_save_v8_money_god';
 
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : {
-      score: 0,
-      coins: 0,
-      ownedWords: ['pepe'],
-      unlockedDifficulties: [Difficulty.EASY],
-      highScores: { [Difficulty.EASY]: 0, [Difficulty.MEDIUM]: 0, [Difficulty.HARD]: 0 }
-    };
+  const [gameState, setGameState] = useState<GameState>({
+    score: 0,
+    coins: 0,
+    ownedWords: ['pepe'],
+    unlockedDifficulties: [Difficulty.EASY],
+    highScores: { [Difficulty.EASY]: 0, [Difficulty.MEDIUM]: 0, [Difficulty.HARD]: 0 }
   });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const [screen, setScreen] = useState<'menu' | 'game' | 'shop' | 'result'>('menu');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(Difficulty.EASY);
   const [lastScore, setLastScore] = useState(0);
   const [coinsGained, setCoinsGained] = useState(0);
 
+  // Загрузка состояния из storage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
-  }, [gameState]);
+    const loadState = async () => {
+      try {
+        const saved = await storageGetItem(STORAGE_KEY);
+        if (saved) {
+          setGameState(JSON.parse(saved));
+        }
+      } catch (error) {
+        console.warn('Failed to load state:', error);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    loadState();
+  }, []);
+
+  // Сохранение состояния в storage с persistence
+  useEffect(() => {
+    if (!isLoaded) return;
+    
+    // Debounce для сохранения - сохраняем через 300ms после последнего изменения
+    const timeoutId = setTimeout(() => {
+      storageSetItem(STORAGE_KEY, JSON.stringify(gameState)).catch((error) => {
+        console.warn('Failed to save state:', error);
+      });
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
+  }, [gameState, isLoaded]);
 
   const handlePurchase = (type: 'word' | 'diff', id: string, price: number) => {
     setGameState(prev => {
@@ -102,7 +128,7 @@ const App: React.FC = () => {
                 </div>
              </div>
              
-             <div className="shiny-pants p-2 text-white rounded-[5rem] shadow-3xl w-full max-w-3xl transform hover:scale-[1.03] transition-all duration-500 border-4 border-[#D4AF37]">
+             <div className="p-2 text-white rounded-[5rem] shadow-3xl w-full max-w-3xl transform hover:scale-[1.03] transition-all duration-500 border-4 border-[#D4AF37] bg-[#111]/90">
                  <div className="bg-[#050505]/98 backdrop-blur-3xl p-16 rounded-[4.8rem] space-y-14 w-full border-2 border-white/5">
                     <div className="space-y-10">
                        <h3 className="text-2xl font-black tracking-[0.6em] text-[#D4AF37] uppercase oswald flex items-center justify-center gap-6">
@@ -118,8 +144,8 @@ const App: React.FC = () => {
                               return (
                                   <button key={key} onClick={() => unlocked && setSelectedDifficulty(diff)} className={`
                                     border-4 p-8 rounded-[2.5rem] transition-all font-black text-2xl oswald tracking-widest
-                                    ${isSelected ? 'bg-white text-black border-[#32CD32] scale-110 shadow-[0_0_40px_rgba(50,205,50,0.8)]' : 'bg-black text-zinc-600 border-zinc-900'}
-                                    ${!unlocked ? 'opacity-20 cursor-not-allowed grayscale' : 'hover:border-[#D4AF37]'}
+                                    ${isSelected ? 'bg-white text-black border-[#32CD32] scale-110 shadow-[0_0_40px_rgba(50,205,50,0.8)]' : 'bg-[#1a1a1a] text-zinc-300 border-zinc-700 hover:border-[#D4AF37] hover:bg-[#222]'}
+                                    ${!unlocked ? 'cursor-not-allowed grayscale bg-white text-black border-zinc-400' : ''}
                                   `}>
                                      {cfg.label}
                                      <div className="text-[13px] opacity-90 mt-3 font-mono text-[#32CD32]">MINTED: {gameState.highScores[diff]}</div>
@@ -148,7 +174,7 @@ const App: React.FC = () => {
              </div>
           </div>
         ) : (
-          <div className="shiny-pants p-3 rounded-[6rem] animate-in zoom-in duration-700 w-full max-w-5xl border-8 border-[#32CD32]">
+          <div className="p-3 rounded-[6rem] animate-in zoom-in duration-700 w-full max-w-5xl border-8 border-[#32CD32] bg-[#111]/90">
               <div className="bg-[#000]/95 backdrop-blur-3xl p-28 rounded-[5.5rem] space-y-20 text-center flex flex-col items-center w-full">
                 <div className="relative">
                     <h2 className="unbounded text-9xl md:text-[12rem] font-black italic luxury-gradient drop-shadow-[0_0_60px_rgba(50,205,50,0.8)] leading-none">
