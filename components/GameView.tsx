@@ -4,7 +4,7 @@ import { Difficulty, GameState, Author } from '../types';
 import { DIFFICULTY_CONFIG, BEAT_DURATION, WORDS, getPoemForAuthor } from '../constants';
 import { audioEngine } from '../services/audioEngine';
 import { Button } from './Button';
-import { calculateInsertScore, getTimingQuality, getTimingLabel, getTimingColor } from '../core/scoring';
+import { calculateInsertScore, getTimingQuality, getTimingLabel, getTimingColor, calculateSpamPenalty } from '../core/scoring';
 import { updateCombo, createInitialComboState, ComboState } from '../core/combo';
 import { getTimingOffset } from '../core/rhythm';
 import { convertScoreToCoins } from '../core/economy';
@@ -27,6 +27,7 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
   const [feedbacks, setFeedbacks] = useState<{ id: number; text: string; x: number; y: number; color: string }[]>([]);
   const [lineWords, setLineWords] = useState<Record<number, { text: string; color: string }[]>>({});
   const [linePresses, setLinePresses] = useState<number>(0);
+  const insertsInCurrentLineRef = useRef<number>(0);
 
   const config = DIFFICULTY_CONFIG[difficulty];
   const fullPoem = getPoemForAuthor(author);
@@ -73,6 +74,7 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
     setLinePresses(0);
     setLineWords({});
     setFeedbacks([]);
+    insertsInCurrentLineRef.current = 0;
     
     // Небольшая задержка перед запуском для сброса состояния
     setTimeout(() => {
@@ -108,6 +110,7 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
                     currentLineIndexRef.current = nextIdx;
                     setCurrentLineIndex(nextIdx);
                     setLinePresses(0);
+                    insertsInCurrentLineRef.current = 0;
                   }
                 } else if (nextIdx >= poem.length) {
                   stopGame(true);
@@ -174,6 +177,13 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
     
     setComboState(newComboState);
     
+    // Увеличиваем счетчик вставок в текущей строке
+    insertsInCurrentLineRef.current += 1;
+    
+    // Получаем количество слов в текущей строке
+    const currentLine = poem[currentLineIndexRef.current] || '';
+    const wordsInLine = currentLine.trim().split(/\s+/).filter(w => w.length > 0).length;
+    
     // Вычисляем очки
     const result = calculateInsertScore(
       word,
@@ -182,10 +192,24 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
       newComboState.multiplier
     );
     
-    setScore(prev => Math.max(0, prev + result.total));
+    // Применяем штраф за спам, если комбо не активно
+    // Штраф применяется, если вставок в строке больше, чем слов в строке
+    const spamPenalty = calculateSpamPenalty(
+      insertsInCurrentLineRef.current,
+      wordsInLine,
+      score + result.total,
+      newComboState.length > 1
+    );
     
-    // Показываем фидбек тайминга (если не было повтора)
-    if (!wasRepeated || !isComboBroken) {
+    // Показываем фидбек о штрафе
+    if (spamPenalty > 0) {
+      spawnFeedback(`-${spamPenalty} СПАМ!`, '#ff0000');
+    }
+    
+    setScore(prev => Math.max(0, prev + result.total - spamPenalty));
+    
+    // Показываем фидбек тайминга (если не было повтора и нет штрафа)
+    if ((!wasRepeated || !isComboBroken) && spamPenalty === 0) {
       const timingLabel = getTimingLabel(timingQualityEnum);
       const timingColor = getTimingColor(timingQualityEnum);
       spawnFeedback(timingLabel, timingColor);

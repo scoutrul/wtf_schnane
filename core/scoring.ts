@@ -142,13 +142,13 @@ export function calculateInsertScore(
 export function getTimingLabel(quality: TimingQuality): string {
   switch (quality) {
     case TimingQuality.PERFECT:
-      return 'МИНТ! 💹';
+      return 'ПУШКАБОМБА';
     case TimingQuality.GOOD:
-      return 'КЭШ! 💰';
+      return 'СТИЛЬ';
     case TimingQuality.NORMAL:
-      return 'ХАЙП';
+      return 'НОРМ';
     case TimingQuality.POOR:
-      return 'СЛАБО БРО...';
+      return 'ватафа?';
   }
 }
 
@@ -166,4 +166,46 @@ export function getTimingColor(quality: TimingQuality): string {
     case TimingQuality.POOR:
       return '#777';
   }
+}
+
+/**
+ * Вычисляет штраф за спам вне комбо
+ * Штраф применяется, если вставок в строке больше, чем слов в строке
+ * Размер штрафа: от 5% до 30% от накопленного счета
+ * 
+ * @param insertsInLine - количество вставок в текущей строке
+ * @param wordsInLine - количество слов в строке
+ * @param currentScore - текущий накопленный счет
+ * @param isComboActive - активно ли комбо
+ * @returns размер штрафа (0 если штраф не применяется)
+ */
+export function calculateSpamPenalty(
+  insertsInLine: number,
+  wordsInLine: number,
+  currentScore: number,
+  isComboActive: boolean
+): number {
+  // Штраф применяется только если комбо не активно
+  if (isComboActive) {
+    return 0;
+  }
+
+  // Если вставок не больше количества слов в строке, штраф не применяется
+  if (insertsInLine <= wordsInLine) {
+    return 0;
+  }
+
+  // Вычисляем коэффициент переполнения (от 0 до 1)
+  // Если вставок = слова + 1, коэффициент минимальный
+  // Чем больше переполнение, тем больше коэффициент
+  const excessInserts = insertsInLine - wordsInLine;
+  // Максимальное переполнение считаем как удвоенное количество слов
+  const maxExcess = wordsInLine;
+  const overflowRatio = Math.min(excessInserts / maxExcess, 1);
+
+  // Штраф от 5% до 30% в зависимости от переполнения
+  const penaltyPercent = 5 + (overflowRatio * 25); // 5% + (0..1) * 25% = 5%..30%
+  const penalty = Math.round(currentScore * (penaltyPercent / 100));
+
+  return penalty;
 }

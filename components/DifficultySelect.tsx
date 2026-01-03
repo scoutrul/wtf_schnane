@@ -53,7 +53,7 @@ export const DifficultySelect: React.FC<DifficultySelectProps> = ({
               <span className="diamond-sparkle">💹</span>
             </h3>
             
-            <div className="grid grid-cols-1 gap-[clamp(0.5rem,2vw,2rem)]">
+            <div className="flex flex-col items-center justify-start gap-[clamp(0.5rem,2vw,2rem)]">
               {Object.entries(DIFFICULTY_CONFIG).map(([key, config]) => {
                 const diff = key as Difficulty;
                 const isUnlocked = unlockedDifficulties.includes(diff);
@@ -79,7 +79,7 @@ export const DifficultySelect: React.FC<DifficultySelectProps> = ({
                         : 'bg-[#1a1a1a] text-zinc-500 border-zinc-700 opacity-60'
                       }
                     `}
-                    style={{fontSize: 'clamp(0.6rem, 1.5vw, 1.5rem)'}}
+                    style={{fontSize: 'clamp(0.6rem, 1.5vw, 1.5rem)', width: '320px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -109,7 +109,6 @@ export const DifficultySelect: React.FC<DifficultySelectProps> = ({
         </div>
 
         <div className="font-black oswald border-t-[clamp(2px,0.3vw,4px)] border-zinc-900 pt-[clamp(0.5rem,2vh,2rem)] flex items-center justify-center gap-[clamp(0.25rem,1.5vw,1.5rem)] w-full" style={{fontSize: 'clamp(0.6rem, 2.5vw, 2.5rem)'}}>
-          <span className="text-zinc-600 text-[clamp(0.3rem,0.6vw,0.7rem)] uppercase tracking-[1em]">КАПИТАЛ:</span> 
           <span className="text-[#32CD32] tabular-nums drop-shadow-[0_0_20px_rgba(50,205,50,0.5)]" style={{fontSize: 'clamp(1.2rem, 5vw, 4rem)'}}>
             {state.coins.toLocaleString()} <span className="diamond-sparkle inline-block">💎</span>
           </span>

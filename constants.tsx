@@ -13,40 +13,44 @@ export const WORDS: (WordInstrument & { color: string })[] = [
     text: 'пэпэ', 
     syllables: 2, 
     rhythm: '2×1/8', 
-    character: 'BASE VIBE', 
+    character: 'БАЗА', 
     price: 0, // Первое слово бесплатно
     pitch: 440, 
-    color: '#D4AF37' 
+    color: '#D4AF37',
+    description: 'Базовый ритм'
   },
   { 
     id: 'faa', 
     text: 'фаа', 
     syllables: 1, 
     rhythm: '1×1/4', 
-    character: 'LONG VIBE', 
+    character: 'ВАААЙБ', 
     price: 40, // 2-е слово - 40 Coins
     pitch: 350, 
-    color: '#32CD32' 
+    color: '#32CD32',
+    description: 'Длинный ритм'
   },
   { 
     id: 'wtfa', 
     text: 'втфа', 
     syllables: 2, 
     rhythm: '2×1/16', 
-    character: 'SHARP VIBE', 
+    character: 'Четкий вайб', 
     price: 90, // 3-е слово - 90 Coins
     pitch: 500, 
-    color: '#FF1493' 
+    color: '#FF1493',
+    description: 'Острый ритм'
   },
   { 
     id: 'shneine', 
     text: 'шнейне', 
     syllables: 2, 
     rhythm: '2×1/8', 
-    character: 'HEAVY VIBE', 
+    character: 'Тяжелый вайб', 
     price: 160, // 4-е слово - 160 Coins
     pitch: 220, 
-    color: '#1E90FF' 
+    color: '#1E90FF',
+    description: 'Тяжёлый ритм'
   },
 ];
 
@@ -140,7 +144,7 @@ export const AUTHORS_CONFIG: Record<Author, AuthorConfig> = {
   [Author.PUSHKIN]: {
     id: Author.PUSHKIN,
     name: 'Пушкин',
-    displayName: 'Пушка-бро',
+    displayName: 'Пушка!',
     poem: POEM_LUKOMORYE,
     style: 'классика • чёткий ритм • обучающий мир',
     price: 0, // Доступен сразу

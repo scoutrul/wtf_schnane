@@ -27,6 +27,7 @@ export interface WordInstrument {
   syllables: number;
   rhythm: string; // e.g. "2x1/8"
   character: string;
+  description: string;
   price: number;
   pitch: number; // For synth sound
 }

@@ -5,9 +5,20 @@ interface ResultScreenProps {
   score: number;
   coinsGained: number;
   onBack: () => void;
+  onRetry?: () => void;
 }
 
-export const ResultScreen: React.FC<ResultScreenProps> = ({ score, coinsGained, onBack }) => {
+export const ResultScreen: React.FC<ResultScreenProps> = ({ score, coinsGained, onBack, onRetry }) => {
+  const getStatus = (score: number): string => {
+    if (score >= 10000) return 'ЛЕГЕНДА';
+    if (score >= 5000) return 'ТОП';
+    if (score >= 2000) return 'НА ОПЫТЕ';
+    if (score >= 500) return 'НУБ';
+    return 'ЛЕЙМ';
+  };
+
+  const status = getStatus(score);
+
   return (
     <div className="h-screen w-screen bg-[#020202] flex flex-col items-center justify-center p-[clamp(0.5rem,2vw,1.5rem)] relative overflow-hidden">
       <div className="absolute inset-0 tattoo-pattern pointer-events-none opacity-30"></div>
@@ -18,13 +29,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ score, coinsGained, 
               <h2 className="unbounded font-black italic luxury-gradient drop-shadow-[0_0_60px_rgba(50,205,50,0.8)] leading-none" style={{fontSize: 'clamp(2rem, 10vw, 12rem)'}}>
                 ПРОФИТ!
               </h2>
-              <div className="absolute -top-[clamp(1rem,4vh,4rem)] -right-[clamp(1rem,4vw,4rem)] text-[clamp(2rem,6vw,5rem)] diamond-sparkle">🏦</div>
             </div>
             
             <div className="space-y-[clamp(0.5rem,3vh,3rem)] w-full">
-              <div className="text-zinc-500 font-bold uppercase tracking-[1.5em] text-[clamp(0.35rem,0.7vw,0.875rem)] oswald flex items-center justify-center gap-[clamp(0.25rem,2vw,2rem)]">
+              <div className="text-zinc-500 font-bold uppercase tracking-[1.5em] text-[clamp(0.35rem,0.7vw,0.875rem)] oswald flex items-center justify-center gap-[clamp(0.25rem,2vw,2rem)]" style={{fontSize: '12px'}}>
                 <span className="h-[clamp(1px,0.1vh,2px)] w-[clamp(1rem,6vw,6rem)] bg-[#32CD32]"></span>
-                СТАТУС: ДЕНЕЖНЫЙ БОГ
+                СТАТУС: {status}
                 <span className="h-[clamp(1px,0.1vh,2px)] w-[clamp(1rem,6vw,6rem)] bg-[#32CD32]"></span>
               </div>
               <div className="font-black text-white drop-shadow-[0_0_80px_#32CD32] oswald leading-none transform rotate-2 italic" style={{fontSize: 'clamp(3rem, 18vw, 18rem)', transform: 'scale(1.25) rotate(2deg)'}}>
@@ -41,9 +51,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ score, coinsGained, 
               )}
             </div>
             
-            <Button onClick={onBack} variant="primary" className="w-full py-[clamp(0.5rem,2vh,2rem)] gold-glow mt-[clamp(0.5rem,2vh,2rem)] bg-[#32CD32] text-black hover:bg-white border-white" style={{fontSize: 'clamp(0.6rem, 2.5vw, 2.5rem)'}}>
-              НАЗАД К АВТОРУ 🦅
-            </Button>
+            <div className="flex flex-col gap-[clamp(0.5rem,2vh,2rem)] w-full mt-[clamp(0.5rem,2vh,2rem)]">
+              {onRetry && (
+                <Button onClick={onRetry} variant="primary" className="w-full py-[clamp(0.5rem,2vh,2rem)] bg-transparent text-white border-white hover:border-[#32CD32] hover:text-[#32CD32]" style={{fontSize: 'clamp(0.6rem, 2.5vw, 2.5rem)'}}>
+                  ПОПРОБОВАТЬ ЕЩЕ
+                </Button>
+              )}
+              <Button onClick={onBack} variant="primary" className="w-full py-[clamp(0.5rem,2vh,2rem)] gold-glow bg-[#32CD32] text-black hover:bg-white border-white" style={{fontSize: 'clamp(0.6rem, 2.5vw, 2.5rem)'}}>
+                БЭК
+              </Button>
+            </div>
           </div>
         </div>
       </div>

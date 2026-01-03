@@ -19,8 +19,9 @@ export const AuthorSelect: React.FC<AuthorSelectProps> = ({ state, onSelectAutho
 
       <div className="z-10 text-center space-y-[clamp(0.25rem,1vh,1rem)] w-full max-w-[768px] mx-auto flex flex-col items-center">
         <div className="title-container relative inline-block">
-          <h1 className="unbounded font-black italic luxury-gradient leading-[0.75] transform -skew-x-12 drop-shadow-[0_30px_80px_rgba(50,205,50,0.6)] gold-glow" style={{fontSize: 'clamp(1.5rem, 8vw, 8rem)'}}>
-            ПЭПЭ,<br/>ФАШНЕЛЬ!
+          <h1 className="unbounded font-black italic luxury-gradient transform -skew-x-12 drop-shadow-[0_30px_80px_rgba(50,205,50,0.6)] gold-glow" style={{fontSize: 'clamp(1.5rem, 8vw, 8rem)', lineHeight: '80%'}}>
+            &nbsp;ПЭПЭ<span className="text-[#32CD32]">ФА</span><br/>
+            ШНЕИНЕ
           </h1>
         </div>
 
@@ -35,7 +36,8 @@ export const AuthorSelect: React.FC<AuthorSelectProps> = ({ state, onSelectAutho
                 <button
                   key={authorId}
                   onClick={() => onSelectAuthor(authorId)}
-                  className="w-full p-[clamp(0.5rem,1.5vw,1.5rem)] bg-black/90 backdrop-blur-xl border-[clamp(2px,0.3vw,4px)] border-[#D4AF37] rounded-[clamp(0.75rem,3vw,1.5rem)] shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all hover:scale-[1.02] cursor-pointer group"
+                  className="w-full bg-black/90 backdrop-blur-xl border-[clamp(2px,0.3vw,4px)] border-[#D4AF37] rounded-[clamp(0.75rem,3vw,1.5rem)] shadow-[0_0_40px_rgba(212,175,55,0.6)] transition-all hover:scale-[1.02] cursor-pointer group"
+                  style={{paddingTop: '8px', paddingBottom: '8px', paddingLeft: '16px', paddingRight: '16px'}}
                 >
                   <div className="flex items-center justify-between">
                     <div className="text-left">
@@ -62,9 +64,10 @@ export const AuthorSelect: React.FC<AuthorSelectProps> = ({ state, onSelectAutho
                   }
                 }}
                 disabled={!canAfford}
-                className={`w-full p-[clamp(0.5rem,1.5vw,1.5rem)] bg-black/60 backdrop-blur-xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,3vw,1.5rem)] transition-all relative overflow-hidden ${
+                className={`w-full bg-black/60 backdrop-blur-xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,3vw,1.5rem)] transition-all relative overflow-hidden ${
                   canAfford ? 'border-[#D4AF37]/50 hover:border-[#D4AF37] hover:scale-[1.02] cursor-pointer' : 'border-zinc-800 opacity-60 cursor-not-allowed'
                 }`}
+                style={{paddingTop: '8px', paddingBottom: '8px', paddingLeft: '16px', paddingRight: '16px'}}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-left">
@@ -95,7 +98,7 @@ export const AuthorSelect: React.FC<AuthorSelectProps> = ({ state, onSelectAutho
         </div>
 
         <div className="font-black oswald border-t-[clamp(2px,0.3vw,4px)] border-zinc-900 pt-[clamp(0.25rem,1vh,1rem)] flex items-center justify-center gap-[clamp(0.25rem,1vw,1rem)] w-full" style={{fontSize: 'clamp(0.5rem, 1.5vw, 1.5rem)'}}>
-          <span className="text-zinc-600 text-[clamp(0.25rem,0.5vw,0.6rem)] uppercase tracking-[0.5em]">КАПИТАЛ:</span> 
+          <span className="text-zinc-600 uppercase tracking-[0.5em]" style={{fontSize: '12px'}}>КАПИТАЛ:</span> 
           <span className="text-[#32CD32] tabular-nums drop-shadow-[0_0_20px_rgba(50,205,50,0.5)]" style={{fontSize: 'clamp(0.9rem, 3vw, 2.5rem)'}}>
             {state.coins.toLocaleString()} <span className="diamond-sparkle inline-block">💎</span>
           </span>
@@ -103,7 +106,7 @@ export const AuthorSelect: React.FC<AuthorSelectProps> = ({ state, onSelectAutho
 
         <button
           onClick={onOpenShop}
-          className="mt-[clamp(0.25rem,1vh,1rem)] px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.375rem,1vh,1rem)] bg-black/80 backdrop-blur-sm border-[clamp(2px,0.3vw,4px)] border-[#D4AF37] hover:bg-[#D4AF37]/20 rounded-[clamp(0.5rem,2vw,1rem)] font-black uppercase oswald text-[#D4AF37] transition-all cursor-pointer"
+          className="mt-[clamp(0.25rem,1vh,1rem)] px-[clamp(0.75rem,2vw,2rem)] py-[clamp(0.375rem,1vh,1rem)] bg-black/80 backdrop-blur-sm border-[clamp(2px,0.3vw,4px)] border-[#D4AF37] hover:bg-[#D4AF37]/20 rounded-[12px] font-black uppercase oswald text-[#D4AF37] transition-all cursor-pointer"
           style={{fontSize: 'clamp(0.5rem, 1.5vw, 1.2rem)'}}
         >
           ЗАЛУТАТЬ СТИЛЬ 💎

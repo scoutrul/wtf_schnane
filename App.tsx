@@ -87,11 +87,18 @@ const App: React.FC = () => {
   }
 
   if (screen === 'result') {
+    const handleRetry = () => {
+      if (selectedAuthor && selectedDifficulty) {
+        navigateToGame(selectedDifficulty);
+      }
+    };
+
     return (
       <ResultScreen
         score={lastScore}
         coinsGained={coinsGained}
         onBack={navigateToAuthorSelect}
+        onRetry={selectedAuthor && selectedDifficulty ? handleRetry : undefined}
       />
     );
   }
