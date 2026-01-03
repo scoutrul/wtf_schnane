@@ -1,5 +1,5 @@
 
-import { Difficulty, WordInstrument } from './types';
+import { Difficulty, WordInstrument, Author, AuthorConfig } from './types';
 
 // Ритмические параметры согласно ТЗ
 export const BPM = 96;
@@ -108,3 +108,65 @@ export const POEM_LUKOMORYE = [
   "Под ним сидел, и кот учёный",
   "Свои мне сказки говорил."
 ];
+
+// Заглушки стихов для Есенина и Маяковского (временно)
+export const POEM_ESENIN = [
+  "Не жалею, не зову, не плачу,",
+  "Всё пройдёт, как с белых яблонь дым.",
+  "Увяданья золотом охваченный,",
+  "Я не буду больше молодым.",
+  "Ты теперь не так уж будешь биться,",
+  "Сердце, тронутое холодком,",
+  "И страна берёзового ситца",
+  "Не заманит шляться босиком."
+];
+
+export const POEM_MAYAKOVSKY = [
+  "А вы могли бы?",
+  "Я сразу смазал карту будня,",
+  "плеснувши краску из стакана;",
+  "я показал на блюде студня",
+  "косые скулы океана.",
+  "На чешуе жестяной рыбы",
+  "прочёл я зовы новых губ.",
+  "А вы",
+  "ноктюрн сыграть",
+  "могли бы",
+  "на флейте водосточных труб?"
+];
+
+// Конфигурация авторов
+export const AUTHORS_CONFIG: Record<Author, AuthorConfig> = {
+  [Author.PUSHKIN]: {
+    id: Author.PUSHKIN,
+    name: 'Пушкин',
+    displayName: 'Пушка-бро',
+    poem: POEM_LUKOMORYE,
+    style: 'классика • чёткий ритм • обучающий мир',
+    price: 0, // Доступен сразу
+    color: '#D4AF37'
+  },
+  [Author.ESENIN]: {
+    id: Author.ESENIN,
+    name: 'Есенин',
+    displayName: 'Есенин Пэпе',
+    poem: POEM_ESENIN,
+    style: 'рваный ритм • эмоциональные слова • средняя сложность',
+    price: 500,
+    color: '#32CD32'
+  },
+  [Author.MAYAKOVSKY]: {
+    id: Author.MAYAKOVSKY,
+    name: 'Маяковский',
+    displayName: 'Маяк WTF',
+    poem: POEM_MAYAKOVSKY,
+    style: 'агрессивный ритм • короткие слова • высокая сложность',
+    price: 1000,
+    color: '#FF1493'
+  }
+};
+
+// Функция получения стиха для автора
+export function getPoemForAuthor(author: Author): string[] {
+  return AUTHORS_CONFIG[author].poem;
+}

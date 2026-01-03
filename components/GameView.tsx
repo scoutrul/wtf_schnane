@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Difficulty, GameState } from '../types';
-import { POEM_LUKOMORYE, DIFFICULTY_CONFIG, BEAT_DURATION, WORDS } from '../constants';
+import { Difficulty, GameState, Author } from '../types';
+import { DIFFICULTY_CONFIG, BEAT_DURATION, WORDS, getPoemForAuthor } from '../constants';
 import { audioEngine } from '../services/audioEngine';
 import { Button } from './Button';
 import { calculateInsertScore, getTimingQuality, getTimingLabel, getTimingColor } from '../core/scoring';
@@ -10,13 +10,14 @@ import { getTimingOffset } from '../core/rhythm';
 import { convertScoreToCoins } from '../core/economy';
 
 interface GameViewProps {
+  author: Author;
   difficulty: Difficulty;
   gameState: GameState;
   onFinish: (score: number) => void;
   onQuit: () => void;
 }
 
-export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFinish, onQuit }) => {
+export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameState, onFinish, onQuit }) => {
   const [score, setScore] = useState(0);
   const [comboState, setComboState] = useState<ComboState>(createInitialComboState());
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
@@ -28,7 +29,8 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
   const [linePresses, setLinePresses] = useState<number>(0);
 
   const config = DIFFICULTY_CONFIG[difficulty];
-  const poem = POEM_LUKOMORYE.slice(0, config.stanzas * 4);
+  const fullPoem = getPoemForAuthor(author);
+  const poem = fullPoem.slice(0, config.stanzas * 4);
   
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);

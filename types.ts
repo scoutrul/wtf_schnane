@@ -5,6 +5,22 @@ export enum Difficulty {
   HARD = 'HARD'
 }
 
+export enum Author {
+  PUSHKIN = 'PUSHKIN',
+  ESENIN = 'ESENIN',
+  MAYAKOVSKY = 'MAYAKOVSKY'
+}
+
+export interface AuthorConfig {
+  id: Author;
+  name: string;
+  displayName: string;
+  poem: string[];
+  style: string;
+  price: number;
+  color: string;
+}
+
 export interface WordInstrument {
   id: string;
   text: string;
@@ -31,6 +47,7 @@ export interface GameState {
   score: number;
   coins: number;
   ownedWords: string[];
-  unlockedDifficulties: Difficulty[];
-  highScores: Record<Difficulty, number>;
+  ownedAuthors: Author[];
+  unlockedDifficulties: Record<Author, Difficulty[]>;
+  highScores: Record<Author, Record<Difficulty, number>>;
 }
