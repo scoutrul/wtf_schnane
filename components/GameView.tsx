@@ -189,53 +189,59 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
       <div className="absolute inset-0 tattoo-pattern pointer-events-none opacity-20"></div>
       
       {feedbacks.map(f => (
-        <div key={f.id} className="absolute font-black text-6xl md:text-[10rem] oswald animate-bounce z-50 pointer-events-none text-center whitespace-nowrap italic tracking-tighter" 
-             style={{left: `${f.x}%`, top: `${f.y}%`, color: f.color, textShadow: `0 0 50px ${f.color}`}}>
+        <div key={f.id} className="absolute font-black oswald animate-bounce z-50 pointer-events-none text-center whitespace-nowrap italic tracking-tighter" 
+             style={{
+               left: `${f.x}%`, 
+               top: `${f.y}%`, 
+               color: f.color, 
+               textShadow: `0 0 50px ${f.color}`,
+               fontSize: 'clamp(1.5rem, 8vw, 10rem)'
+             }}>
           {f.text}
         </div>
       ))}
 
-      <div className="w-full flex justify-between items-start px-8 pt-8 z-40 pointer-events-none">
-        <div className="flex flex-col gap-4">
-            <div className="bg-black/90 border-4 border-[#32CD32] px-8 py-5 rounded-3xl shadow-[0_0_30px_rgba(50,205,50,0.6)] pointer-events-auto min-w-[180px] flex flex-col items-center transform -rotate-2">
-                <div className="text-[14px] text-[#32CD32] font-black uppercase tracking-[0.4em] oswald">TOTAL ASSETS</div>
-                <div className="text-5xl font-black tabular-nums oswald text-white gold-glow">{score.toLocaleString()}</div>
+      <div className="w-full flex justify-between items-start px-[clamp(0.5rem,2vw,2rem)] pt-[clamp(0.5rem,2vh,2rem)] z-40 pointer-events-none">
+        <div className="flex flex-col gap-[clamp(0.25rem,1vh,1rem)]">
+            <div className="bg-black/90 border-[clamp(2px,0.3vw,4px)] border-[#32CD32] px-[clamp(0.5rem,2vw,2rem)] py-[clamp(0.25rem,1.5vh,1.25rem)] rounded-[clamp(0.5rem,1.5vw,1.5rem)] shadow-[0_0_30px_rgba(50,205,50,0.6)] pointer-events-auto min-w-[clamp(90px,20vw,180px)] flex flex-col items-center transform -rotate-2">
+                <div className="text-[#32CD32] font-black uppercase tracking-[0.4em] oswald" style={{fontSize: 'clamp(0.35rem,0.9vw,0.875rem)'}}>TOTAL ASSETS</div>
+                <div className="font-black tabular-nums oswald text-white gold-glow" style={{fontSize: 'clamp(1rem,3vw,3rem)'}}>{score.toLocaleString()}</div>
             </div>
             {isRunning && (
-                <div className="pointer-events-auto flex gap-3">
-                    <button onClick={startGame} className="bg-[#32CD32] text-black border-2 border-white px-5 py-2 rounded-xl text-xs font-black uppercase oswald transition-all hover:scale-105">MINT AGAIN</button>
-                    <button onClick={() => stopGame(false)} className="bg-red-700 text-white border-2 border-white px-5 py-2 rounded-xl text-xs font-black uppercase oswald transition-all hover:scale-105">CASH OUT</button>
+                <div className="pointer-events-auto flex gap-[clamp(0.25rem,0.75vw,0.75rem)]">
+                    <button onClick={startGame} className="bg-[#32CD32] text-black border-2 border-white px-[clamp(0.25rem,1.25vw,1.25rem)] py-[clamp(0.125rem,0.5vh,0.5rem)] rounded-xl font-black uppercase oswald transition-all hover:scale-105" style={{fontSize: 'clamp(0.35rem,0.75vw,0.75rem)'}}>MINT AGAIN</button>
+                    <button onClick={() => stopGame(false)} className="bg-red-700 text-white border-2 border-white px-[clamp(0.25rem,1.25vw,1.25rem)] py-[clamp(0.125rem,0.5vh,0.5rem)] rounded-xl font-black uppercase oswald transition-all hover:scale-105" style={{fontSize: 'clamp(0.35rem,0.75vw,0.75rem)'}}>CASH OUT</button>
                 </div>
             )}
         </div>
         
-        <div className="bg-black/90 border-4 border-[#FF1493] px-8 py-5 rounded-3xl shadow-[0_0_30px_rgba(255,20,147,0.6)] text-right pointer-events-auto min-w-[180px] flex flex-col items-center transform rotate-2">
-          <div className="text-[14px] text-[#FF1493] font-black uppercase tracking-[0.4em] oswald">COMBO PROFIT</div>
-          <div className="text-5xl font-black tabular-nums oswald text-[#FF1493]">{combo.toFixed(1)}x</div>
+        <div className="bg-black/90 border-[clamp(2px,0.3vw,4px)] border-[#FF1493] px-[clamp(0.5rem,2vw,2rem)] py-[clamp(0.25rem,1.5vh,1.25rem)] rounded-[clamp(0.5rem,1.5vw,1.5rem)] shadow-[0_0_30px_rgba(255,20,147,0.6)] text-right pointer-events-auto min-w-[clamp(90px,20vw,180px)] flex flex-col items-center transform rotate-2">
+          <div className="text-[#FF1493] font-black uppercase tracking-[0.4em] oswald" style={{fontSize: 'clamp(0.35rem,0.9vw,0.875rem)'}}>COMBO PROFIT</div>
+          <div className="font-black tabular-nums oswald text-[#FF1493]" style={{fontSize: 'clamp(1rem,3vw,3rem)'}}>{combo.toFixed(1)}x</div>
         </div>
       </div>
 
-      <div className="flex-1 w-full flex flex-col items-center justify-center z-10 relative px-6">
+      <div className="flex-1 w-full flex flex-col items-center justify-center z-10 relative px-[clamp(0.25rem,1.5vw,1.5rem)] overflow-hidden">
         {!isRunning ? (
-          <div className="text-center space-y-12 animate-in zoom-in duration-500 w-full flex flex-col items-center">
-            <h2 className="unbounded text-8xl md:text-[12rem] font-black luxury-gradient italic drop-shadow-[0_0_60px_rgba(50,205,50,0.5)] leading-tight">READY TO MINT?</h2>
-            <div className="flex flex-col gap-8 w-full max-w-md">
-               <Button onClick={startGame} className="text-4xl py-10 gold-glow w-full bg-[#32CD32] text-black border-white animate-pulse rounded-[4rem]">START MINTING 🔥</Button>
-               <Button onClick={onQuit} variant="danger" className="text-xl font-bold w-full border-zinc-800">CANCELED</Button>
+          <div className="text-center space-y-[clamp(0.5rem,3vh,3rem)] animate-in zoom-in duration-500 w-full flex flex-col items-center">
+            <h2 className="unbounded font-black luxury-gradient italic drop-shadow-[0_0_60px_rgba(50,205,50,0.5)] leading-tight" style={{fontSize: 'clamp(2rem, 10vw, 12rem)'}}>READY TO MINT?</h2>
+            <div className="flex flex-col gap-[clamp(0.5rem,2vh,2rem)] w-full max-w-[90vw]">
+               <Button onClick={startGame} className="py-[clamp(0.5rem,2.5vh,2.5rem)] gold-glow w-full bg-[#32CD32] text-black border-white animate-pulse rounded-[clamp(1rem,8vw,4rem)]" style={{fontSize: 'clamp(0.75rem, 2.5vw, 2.25rem)'}}>START MINTING 🔥</Button>
+               <Button onClick={onQuit} variant="danger" className="font-bold w-full border-zinc-800" style={{fontSize: 'clamp(0.5rem, 1.25vw, 1.25rem)'}}>CANCELED</Button>
             </div>
           </div>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center">
+          <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden">
             {isCountingDown ? (
-                <div className="text-center space-y-10 flex flex-col items-center">
-                    <div className="text-zinc-500 text-4xl uppercase tracking-[1em] font-black oswald">MINTING IN...</div>
-                    <div className="text-[20rem] font-black text-white leading-none oswald gold-glow transform -rotate-6 italic">
+                <div className="text-center space-y-[clamp(0.5rem,2.5vh,2.5rem)] flex flex-col items-center">
+                    <div className="text-zinc-500 uppercase tracking-[1em] font-black oswald" style={{fontSize: 'clamp(0.75rem, 2.5vw, 2.25rem)'}}>MINTING IN...</div>
+                    <div className="font-black text-white leading-none oswald gold-glow transform -rotate-6 italic" style={{fontSize: 'clamp(8rem, 20vw, 20rem)'}}>
                         {Math.max(1, 4 - Math.floor((beatCount % 8)/2))}
                     </div>
                 </div>
             ) : (
-                <div className="w-full max-w-6xl flex flex-col items-center relative">
-                    <div className="h-[50vh] w-full relative mask-fade flex items-center justify-center overflow-hidden">
+                <div className="w-full max-w-[95vw] flex flex-col items-center relative h-full justify-center">
+                    <div className="h-[clamp(20vh,40vh,50vh)] w-full relative mask-fade flex items-center justify-center overflow-hidden">
                         {[-2, -1, 0, 1, 2].map(offset => {
                             const idx = currentLineIndex + offset;
                             if (idx < 0 || idx >= poem.length) return null;
@@ -254,14 +260,14 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
                                          scale: scale,
                                          filter: `blur(${blur})`
                                      }}>
-                                    <div className={`font-black text-center px-8 max-w-full overflow-hidden text-ellipsis whitespace-nowrap tracking-tighter oswald ${isCurrent ? 'text-white drop-shadow-[0_0_30px_rgba(50,205,50,0.6)]' : 'text-zinc-800'}`} 
-                                         style={{ fontSize: isCurrent ? '4.2rem' : '2.8rem' }}>
+                                    <div className={`font-black text-center px-[clamp(0.25rem,2vw,2rem)] max-w-full overflow-hidden text-ellipsis whitespace-nowrap tracking-tighter oswald ${isCurrent ? 'text-white drop-shadow-[0_0_30px_rgba(50,205,50,0.6)]' : 'text-zinc-800'}`} 
+                                         style={{ fontSize: isCurrent ? 'clamp(1.5rem, 4.2vw, 4.2rem)' : 'clamp(1rem, 2.8vw, 2.8rem)' }}>
                                         {poem[idx]}
                                     </div>
                                     {isCurrent && (
-                                         <div className="flex flex-wrap justify-center gap-6 mt-8 h-12">
+                                         <div className="flex flex-wrap justify-center gap-[clamp(0.25rem,1.5vw,1.5rem)] mt-[clamp(0.25rem,2vh,2rem)]" style={{height: 'clamp(1.5rem, 3vh, 3rem)'}}>
                                             {lineWords[idx]?.map((w, i) => (
-                                                <span key={i} className="text-sm font-black uppercase px-6 py-2 bg-black border-4 rounded-2xl shadow-3xl animate-in slide-in-from-bottom-4" style={{color: w.color, borderColor: w.color}}>
+                                                <span key={i} className="font-black uppercase bg-black border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.5rem,1.5vw,1.5rem)] shadow-3xl animate-in slide-in-from-bottom-4" style={{color: w.color, borderColor: w.color, fontSize: 'clamp(0.35rem,0.875vw,0.875rem)', padding: 'clamp(0.125rem,0.5vw,0.5rem) clamp(0.25rem,1.5vw,1.5rem)'}}>
                                                     {w.text}
                                                 </span>
                                             ))}
@@ -272,14 +278,14 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
                         })}
                     </div>
 
-                    <div className="w-full flex flex-col items-center mt-12">
-                        <div className="flex gap-8 mb-12">
+                    <div className="w-full flex flex-col items-center mt-[clamp(0.5rem,3vh,3rem)]">
+                        <div className="flex gap-[clamp(0.25rem,2vw,2rem)] mb-[clamp(0.5rem,3vh,3rem)]">
                             {[0, 1, 2, 3].map(i => (
-                                <div key={i} className={`w-20 h-3 rounded-full transition-all duration-200 ${beatCount % 4 === i ? 'bg-[#32CD32] scale-x-150 shadow-[0_0_30px_#32CD32]' : 'bg-zinc-900'}`} />
+                                <div key={i} className={`rounded-full transition-all duration-200 ${beatCount % 4 === i ? 'bg-[#32CD32] scale-x-150 shadow-[0_0_30px_#32CD32]' : 'bg-zinc-900'}`} style={{width: 'clamp(0.75rem, 5vw, 5rem)', height: 'clamp(2px, 0.75vh, 0.75rem)'}} />
                             ))}
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-5xl px-8">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-[clamp(0.25rem,2vw,2rem)] w-full max-w-[95vw] px-[clamp(0.25rem,2vw,2rem)]">
                             {WORDS.filter(w => gameState.ownedWords.includes(w.id)).slice(0, 8).map((word, idx) => {
                                 const isPressed = lastInsert?.id === word.id && Date.now() - lastInsert.time < 120;
                                 return (
@@ -287,15 +293,18 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
                                         key={word.id}
                                         onClick={() => handleInput(word.id)}
                                         className={`
-                                            relative py-10 px-6 rounded-[2.5rem] border-4 transition-all active:scale-90 group overflow-hidden flex flex-col items-center justify-center
+                                            relative border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,5vw,2.5rem)] transition-all active:scale-90 group overflow-hidden flex flex-col items-center justify-center
                                             bg-[#0a0a0a] border-zinc-800 shadow-2xl
                                             ${isPressed ? 'bg-white/15 scale-110 border-white shadow-[0_0_50px_rgba(255,255,255,0.4)]' : 'hover:border-[#32CD32]/50'}
                                         `}
-                                        style={{ borderColor: isPressed ? word.color : undefined }}
+                                        style={{ 
+                                          borderColor: isPressed ? word.color : undefined,
+                                          padding: 'clamp(0.5rem, 2.5vh, 2.5rem) clamp(0.25rem, 1.5vw, 1.5rem)'
+                                        }}
                                     >
-                                        <div className="absolute top-3 left-6 text-sm font-black opacity-40 oswald text-[#32CD32]">{idx + 1}</div>
-                                        <div className="text-3xl md:text-4xl font-black uppercase tracking-tighter oswald italic" style={{ color: word.color }}>{word.text}</div>
-                                        <div className="text-[11px] font-black text-zinc-600 uppercase mt-3 tracking-[0.3em]">{word.character}</div>
+                                        <div className="absolute top-[clamp(0.125rem,0.75vh,0.75rem)] left-[clamp(0.25rem,1.5vw,1.5rem)] font-black opacity-40 oswald text-[#32CD32]" style={{fontSize: 'clamp(0.35rem,0.875vw,0.875rem)'}}>{idx + 1}</div>
+                                        <div className="font-black uppercase tracking-tighter oswald italic" style={{ color: word.color, fontSize: 'clamp(0.75rem, 2.5vw, 2.25rem)' }}>{word.text}</div>
+                                        <div className="font-black text-zinc-600 uppercase mt-[clamp(0.125rem,0.75vh,0.75rem)] tracking-[0.3em]" style={{fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>{word.character}</div>
                                     </button>
                                 );
                             })}
@@ -307,7 +316,7 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
         )}
       </div>
 
-      <div className="absolute bottom-6 right-8 text-[12px] text-[#32CD32] font-mono tracking-[1em] uppercase opacity-50 flex items-center gap-4">
+      <div className="absolute bottom-[clamp(0.25rem,1.5vh,1.5rem)] right-[clamp(0.25rem,2vw,2rem)] text-[#32CD32] font-mono uppercase opacity-50 flex items-center gap-[clamp(0.125rem,1vw,1rem)]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)', letterSpacing: '1em'}}>
         <span className="diamond-sparkle">💸</span> PEPE RICHEST WORLD DOMINATION <span className="diamond-sparkle">💸</span>
       </div>
     </div>

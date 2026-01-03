@@ -49,14 +49,26 @@
   src: url('/fonts/Oswald-Bold.woff2') format('woff2');
 }
 
-body {
+html, body {
   font-family: 'JetBrains Mono', monospace;
   background-color: #050505;
   color: #f0f0f0;
-  overflow-x: hidden;
+  overflow: hidden;
   user-select: none;
   margin: 0;
   padding: 0;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
 .unbounded {
@@ -106,7 +118,7 @@ body {
 }
 
 .title-container {
-  padding: 40px;
+  padding: clamp(1rem, 3vh, 2.5rem);
   overflow: visible;
 }
 
