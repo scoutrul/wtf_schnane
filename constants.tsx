@@ -1,27 +1,78 @@
 
 import { Difficulty, WordInstrument } from './types';
 
+// Ритмические параметры согласно ТЗ
 export const BPM = 96;
-export const BEAT_DURATION = 60000 / BPM; 
-export const SUBDIVISION = 8; 
+export const BEAT_DURATION = 60000 / BPM; // Длительность одного бита в мс
+export const SUBDIVISION = 8; // Минимальная ритмическая единица: 1/8
 
+// Слова-инструменты согласно ТЗ (MVP)
 export const WORDS: (WordInstrument & { color: string })[] = [
-  { id: 'pepe', text: 'пэпэ', syllables: 2, rhythm: '2×1/8', character: 'BASE VIBE', price: 0, pitch: 440, color: '#D4AF37' }, 
-  { id: 'rich', text: 'легушонок на богатом', syllables: 4, rhythm: '4×1/16', character: 'RICH PEPE', price: 5000, pitch: 350, color: '#32CD32' },
-  { id: 'shnell', text: 'шнель бро', syllables: 2, rhythm: '2×1/8', character: 'QUICK CASH', price: 25000, pitch: 500, color: '#FFD700' },
-  { id: 'wtfa', text: 'ватафа?', syllables: 3, rhythm: '3×1/16', character: 'WTF PROFIT', price: 100000, pitch: 660, color: '#FF1493' }, 
-  { id: 'money', text: 'любит деньги', syllables: 3, rhythm: '3×1/16', character: 'MONEY LOVER', price: 500000, pitch: 200, color: '#FFFFFF' },
-  { id: 'shneine', text: 'коко шнейне', syllables: 2, rhythm: '2×1/8', character: 'HIGH FASHION', price: 2500000, pitch: 220, color: '#1E90FF' }, 
-  { id: 'babki', text: 'БАБКИ КЭШ', syllables: 2, rhythm: '2×1/4', character: 'PURE PROFIT', price: 10000000, pitch: 110, color: '#00FA9A' },
-  { id: 'papa', text: 'ПАПОЧКА ПЭПА', syllables: 4, rhythm: '4×1/8', character: 'GODFATHER', price: 100000000, pitch: 400, color: '#FF4500' },
+  { 
+    id: 'pepe', 
+    text: 'пэпэ', 
+    syllables: 2, 
+    rhythm: '2×1/8', 
+    character: 'BASE VIBE', 
+    price: 0, // Первое слово бесплатно
+    pitch: 440, 
+    color: '#D4AF37' 
+  },
+  { 
+    id: 'faa', 
+    text: 'фаа', 
+    syllables: 1, 
+    rhythm: '1×1/4', 
+    character: 'LONG VIBE', 
+    price: 40, // 2-е слово - 40 Coins
+    pitch: 350, 
+    color: '#32CD32' 
+  },
+  { 
+    id: 'wtfa', 
+    text: 'втфа', 
+    syllables: 2, 
+    rhythm: '2×1/16', 
+    character: 'SHARP VIBE', 
+    price: 90, // 3-е слово - 90 Coins
+    pitch: 500, 
+    color: '#FF1493' 
+  },
+  { 
+    id: 'shneine', 
+    text: 'шнейне', 
+    syllables: 2, 
+    rhythm: '2×1/8', 
+    character: 'HEAVY VIBE', 
+    price: 160, // 4-е слово - 160 Coins
+    pitch: 220, 
+    color: '#1E90FF' 
+  },
 ];
 
+// Конфигурация сложностей согласно ТЗ
 export const DIFFICULTY_CONFIG = {
-  [Difficulty.EASY]: { stanzas: 2, factor: 1.0, label: 'LITTLE INVESTOR', price: 0 },
-  [Difficulty.MEDIUM]: { stanzas: 6, factor: 10.0, label: 'CRYPTO WHALE', price: 100000 },
-  [Difficulty.HARD]: { stanzas: 100, factor: 100.0, label: 'GALAXY EMPEROR', price: 10000000 },
+  [Difficulty.EASY]: { 
+    stanzas: 1, // 1-2 четверостишия (4-8 строк)
+    factor: 0.6, // Коэффициент для конвертации Score → Coins
+    label: 'LITTLE INVESTOR', 
+    price: 0 // Лёгкий уровень бесплатный
+  },
+  [Difficulty.MEDIUM]: { 
+    stanzas: 4, // 4-6 четверостиший (16-24 строки)
+    factor: 1.0, 
+    label: 'CRYPTO WHALE', 
+    price: 120 // Средний уровень - 120 Coins
+  },
+  [Difficulty.HARD]: { 
+    stanzas: 15, // Весь стих (58 строк = ~15 четверостиший)
+    factor: 1.4, 
+    label: 'GALAXY EMPEROR', 
+    price: 300 // Сложный уровень - 300 Coins
+  },
 };
 
+// Полный текст стиха "У лукоморья дуб зелёный"
 export const POEM_LUKOMORYE = [
   "У лукоморья дуб зелёный;",
   "Златая цепь на дубе том:",

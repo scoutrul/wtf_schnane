@@ -1,59 +1,20 @@
 
-import React, { useState, useEffect } from 'react';
-import { Difficulty, GameState } from './types';
+import React, { useState } from 'react';
+import { Difficulty } from './types';
 import { DIFFICULTY_CONFIG } from './constants';
 import { GameView } from './components/GameView';
 import { Shop } from './components/Shop';
 import { Button } from './components/Button';
-import { storageGetItem, storageSetItem } from './services/yandexStorage';
-
-const STORAGE_KEY = 'pepi_fashnel_save_v8_money_god';
+import { calculateCoinsGained } from './core/economy';
+import { useGameState } from './hooks/useGameState';
 
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>({
-    score: 0,
-    coins: 0,
-    ownedWords: ['pepe'],
-    unlockedDifficulties: [Difficulty.EASY],
-    highScores: { [Difficulty.EASY]: 0, [Difficulty.MEDIUM]: 0, [Difficulty.HARD]: 0 }
-  });
-  const [isLoaded, setIsLoaded] = useState(false);
+  const { gameState, setGameState } = useGameState();
 
   const [screen, setScreen] = useState<'menu' | 'game' | 'shop' | 'result'>('menu');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(Difficulty.EASY);
   const [lastScore, setLastScore] = useState(0);
   const [coinsGained, setCoinsGained] = useState(0);
-
-  // Загрузка состояния из storage
-  useEffect(() => {
-    const loadState = async () => {
-      try {
-        const saved = await storageGetItem(STORAGE_KEY);
-        if (saved) {
-          setGameState(JSON.parse(saved));
-        }
-      } catch (error) {
-        console.warn('Failed to load state:', error);
-      } finally {
-        setIsLoaded(true);
-      }
-    };
-    loadState();
-  }, []);
-
-  // Сохранение состояния в storage с persistence
-  useEffect(() => {
-    if (!isLoaded) return;
-    
-    // Debounce для сохранения - сохраняем через 300ms после последнего изменения
-    const timeoutId = setTimeout(() => {
-      storageSetItem(STORAGE_KEY, JSON.stringify(gameState)).catch((error) => {
-        console.warn('Failed to save state:', error);
-      });
-    }, 300);
-    
-    return () => clearTimeout(timeoutId);
-  }, [gameState, isLoaded]);
 
   const handlePurchase = (type: 'word' | 'diff', id: string, price: number) => {
     setGameState(prev => {
@@ -67,12 +28,9 @@ const App: React.FC = () => {
 
   const handleGameFinish = (score: number) => {
     const prevBest = gameState.highScores[selectedDifficulty] || 0;
-    const factor = DIFFICULTY_CONFIG[selectedDifficulty].factor;
     
-    // Сверхзвуковая доходность: множитель 200
-    const newCoinsPotential = Math.round(Math.sqrt(score) * 200 * factor);
-    const oldCoinsPotential = Math.round(Math.sqrt(prevBest) * 200 * factor);
-    const gained = Math.max(0, newCoinsPotential - oldCoinsPotential);
+    // Используем правильную формулу из ТЗ: Coins = sqrt(TotalScore) × DifficultyFactor
+    const gained = calculateCoinsGained(score, prevBest, selectedDifficulty);
 
     setGameState(prev => ({
       ...prev,

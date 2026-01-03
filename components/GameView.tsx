@@ -1,9 +1,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Difficulty, GameState, WordInstrument, ScoreBreakdown } from '../types';
+import { Difficulty, GameState } from '../types';
 import { POEM_LUKOMORYE, DIFFICULTY_CONFIG, BEAT_DURATION, WORDS } from '../constants';
 import { audioEngine } from '../services/audioEngine';
 import { Button } from './Button';
+import { calculateInsertScore, getTimingQuality, getTimingLabel, getTimingColor } from '../core/scoring';
+import { updateCombo, createInitialComboState, ComboState } from '../core/combo';
+import { getTimingOffset } from '../core/rhythm';
 
 interface GameViewProps {
   difficulty: Difficulty;
@@ -14,12 +17,11 @@ interface GameViewProps {
 
 export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFinish, onQuit }) => {
   const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(0);
+  const [comboState, setComboState] = useState<ComboState>(createInitialComboState());
   const [currentLineIndex, setCurrentLineIndex] = useState(-1);
   const [beatCount, setBeatCount] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [isCountingDown, setIsCountingDown] = useState(false);
-  const [lastInsert, setLastInsert] = useState<{ id: string; time: number } | null>(null);
   const [feedbacks, setFeedbacks] = useState<{ id: number; text: string; x: number; y: number; color: string }[]>([]);
   const [lineWords, setLineWords] = useState<Record<number, { text: string; color: string }[]>>({});
   const [linePresses, setLinePresses] = useState<number>(0);
@@ -34,7 +36,11 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
 
   useEffect(() => {
     audioEngine.init();
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => { 
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, []);
 
   const spawnFeedback = (text: string, color: string = '#D4AF37') => {
@@ -42,80 +48,65 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
     const x = 50 + (Math.random() * 40 - 20);
     const y = 30 + (Math.random() * 20 - 10);
     setFeedbacks(prev => [...prev, { id, text, x, y, color }]);
-    setTimeout(() => { setFeedbacks(prev => prev.filter(f => f.id !== id)); }, 800);
+    setTimeout(() => { 
+      setFeedbacks(prev => prev.filter(f => f.id !== id)); 
+    }, 800);
   };
-
-  const calculateScore = useCallback((word: WordInstrument & { color: string }, timingOffset: number): ScoreBreakdown => {
-    const absOffset = Math.abs(timingOffset);
-    let timingMult = 0.1;
-    let timingLabel = 'WEAK BRO...';
-    let color = '#777';
-
-    if (absOffset < 80) { timingMult = 3.0; timingLabel = 'MINTED! 💹'; color = '#32CD32'; }
-    else if (absOffset < 160) { timingMult = 1.8; timingLabel = 'CASH! 💰'; color = '#D4AF37'; }
-    else if (absOffset < 280) { timingMult = 1.0; timingLabel = 'HYPE'; color = '#FF1493'; }
-    else if (absOffset < 400) { timingMult = 0.5; timingLabel = 'MID'; color = '#1E90FF'; }
-
-    let currentPenalty = 0;
-    if (linePresses >= 5) {
-        timingLabel = 'SPAM IS FOR POOR';
-        color = '#8a2be2';
-        timingMult = -3.0; 
-        currentPenalty = 1000;
-    }
-
-    spawnFeedback(timingLabel, color);
-
-    const isPause = beatCount % 2 === 1;
-    const rhythmMult = isPause ? 1.6 : 0.4;
-    const overlapMult = isPause ? 1.8 : 0.2;
-
-    let comboMult = 1;
-    let newCombo = combo;
-    if (lastInsert && lastInsert.id !== word.id && Date.now() - lastInsert.time < BEAT_DURATION * 3) {
-      newCombo = Math.min(combo + 0.5, 15);
-      comboMult = 1 + (newCombo - 1) * 0.8;
-    } else {
-      newCombo = 1;
-    }
-    setCombo(newCombo);
-
-    const total = Math.round(500 * timingMult * rhythmMult * overlapMult * comboMult) - currentPenalty;
-
-    setLineWords(prev => ({
-      ...prev,
-      [currentLineIndexRef.current]: [...(prev[currentLineIndexRef.current] || []), { text: word.text, color: word.color }]
-    }));
-    setLinePresses(p => p + 1);
-
-    return { total, timing: timingMult, rhythm: rhythmMult, overlap: overlapMult, combo: comboMult };
-  }, [beatCount, combo, lastInsert, linePresses]);
 
   const handleInput = useCallback((wordId: string) => {
     if (!isRunning || currentLineIndexRef.current < 0 || isCountingDown) return;
+    
     const word = WORDS.find(w => w.id === wordId);
     if (!word) return;
 
     audioEngine.playWord(word.pitch);
     const now = Date.now();
-    const nearestBeat = Math.round((now - startTimeRef.current) / BEAT_DURATION);
-    const timingOffset = now - (startTimeRef.current + nearestBeat * BEAT_DURATION);
-
-    const result = calculateScore(word, timingOffset);
+    const timingOffset = getTimingOffset(now, startTimeRef.current);
+    const timingQualityEnum = getTimingQuality(timingOffset);
+    
+    // Обновляем комбо (преобразуем enum в строку для совместимости)
+    const timingQualityStr = timingQualityEnum as 'perfect' | 'good' | 'normal' | 'poor';
+    const newComboState = updateCombo(comboState, wordId, now, timingQualityStr);
+    setComboState(newComboState);
+    
+    // Вычисляем очки
+    const result = calculateInsertScore(
+      word,
+      timingOffset,
+      beatCount,
+      newComboState.multiplier
+    );
+    
     setScore(prev => Math.max(0, prev + result.total));
-    setLastInsert({ id: wordId, time: now });
-  }, [isRunning, calculateScore, isCountingDown]);
+    
+    // Показываем фидбек
+    const timingLabel = getTimingLabel(timingQualityEnum);
+    const timingColor = getTimingColor(timingQualityEnum);
+    spawnFeedback(timingLabel, timingColor);
+    
+    // Добавляем слово в визуализацию
+    setLineWords(prev => ({
+      ...prev,
+      [currentLineIndexRef.current]: [
+        ...(prev[currentLineIndexRef.current] || []), 
+        { text: word.text, color: word.color }
+      ]
+    }));
+    setLinePresses(p => p + 1);
+  }, [isRunning, isCountingDown, beatCount, comboState]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const keyMap: Record<string, number> = { 
-        '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7,
-        'z': 0, 'x': 1, 'c': 2, 'v': 3, 'b': 4, 'n': 5, 'm': 6, ',': 7
+        '1': 0, '2': 1, '3': 2, '4': 3,
+        'z': 0, 'x': 1, 'c': 2, 'v': 3
       };
       const index = keyMap[e.key.toLowerCase()];
       if (index !== undefined) {
         const owned = WORDS.filter(w => gameState.ownedWords.includes(w.id));
-        if (owned[index]) handleInput(owned[index].id);
+        if (owned[index]) {
+          handleInput(owned[index].id);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -124,13 +115,15 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
 
   const stopGame = useCallback((finished: boolean) => {
     if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
     setIsRunning(false);
     setIsCountingDown(false);
     isCountingDownRef.current = false;
-    if (finished) setTimeout(() => onFinish(score), 800);
+    if (finished) {
+      setTimeout(() => onFinish(score), 800);
+    }
   }, [onFinish, score]);
 
   const startGame = useCallback(() => {
@@ -142,7 +135,7 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
     currentLineIndexRef.current = -1;
     setCurrentLineIndex(-1);
     setScore(0);
-    setCombo(0);
+    setComboState(createInitialComboState());
     setBeatCount(0);
     setLinePresses(0);
     setLineWords({});
@@ -155,10 +148,11 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
       
       setBeatCount(prev => {
         if (currentBeat > prev) {
+          // Звук метронома
           audioEngine.playClick(currentBeat % 4 === 0 ? 660 : 330, 0.04, 0.02);
 
           if (currentBeat < 8) {
-             // Ready?
+            // Обратный отсчет
           } else {
             if (isCountingDownRef.current) {
               isCountingDownRef.current = false;
@@ -166,6 +160,7 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
             }
 
             const poemBeat = currentBeat - 8;
+            // Каждая строка занимает 8 битов
             if (poemBeat % 8 === 0) {
               const nextIdx = currentLineIndexRef.current + 1;
               if (nextIdx < poem.length) {
@@ -217,7 +212,8 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
         
         <div className="bg-black/90 border-[clamp(2px,0.3vw,4px)] border-[#FF1493] px-[clamp(0.5rem,2vw,2rem)] py-[clamp(0.25rem,1.5vh,1.25rem)] rounded-[clamp(0.5rem,1.5vw,1.5rem)] shadow-[0_0_30px_rgba(255,20,147,0.6)] text-right pointer-events-auto min-w-[clamp(90px,20vw,180px)] flex flex-col items-center transform rotate-2">
           <div className="text-[#FF1493] font-black uppercase tracking-[0.4em] oswald" style={{fontSize: 'clamp(0.35rem,0.9vw,0.875rem)'}}>COMBO PROFIT</div>
-          <div className="font-black tabular-nums oswald text-[#FF1493]" style={{fontSize: 'clamp(1rem,3vw,3rem)'}}>{combo.toFixed(1)}x</div>
+          <div className="font-black tabular-nums oswald text-[#FF1493]" style={{fontSize: 'clamp(1rem,3vw,3rem)'}}>{comboState.multiplier.toFixed(2)}x</div>
+          <div className="text-[#FF1493] text-[clamp(0.3rem,0.7vw,0.7rem)] mt-1">COMBO: {comboState.length}</div>
         </div>
       </div>
 
@@ -287,18 +283,12 @@ export const GameView: React.FC<GameViewProps> = ({ difficulty, gameState, onFin
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-[clamp(0.25rem,2vw,2rem)] w-full max-w-[95vw] px-[clamp(0.25rem,2vw,2rem)]">
                             {WORDS.filter(w => gameState.ownedWords.includes(w.id)).slice(0, 8).map((word, idx) => {
-                                const isPressed = lastInsert?.id === word.id && Date.now() - lastInsert.time < 120;
                                 return (
                                     <button
                                         key={word.id}
                                         onClick={() => handleInput(word.id)}
-                                        className={`
-                                            relative border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,5vw,2.5rem)] transition-all active:scale-90 group overflow-hidden flex flex-col items-center justify-center
-                                            bg-[#0a0a0a] border-zinc-800 shadow-2xl
-                                            ${isPressed ? 'bg-white/15 scale-110 border-white shadow-[0_0_50px_rgba(255,255,255,0.4)]' : 'hover:border-[#32CD32]/50'}
-                                        `}
+                                        className="relative border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,5vw,2.5rem)] transition-all active:scale-90 group overflow-hidden flex flex-col items-center justify-center bg-[#0a0a0a] border-zinc-800 shadow-2xl hover:border-[#32CD32]/50"
                                         style={{ 
-                                          borderColor: isPressed ? word.color : undefined,
                                           padding: 'clamp(0.5rem, 2.5vh, 2.5rem) clamp(0.25rem, 1.5vw, 1.5rem)'
                                         }}
                                     >
