@@ -142,13 +142,13 @@ export function calculateInsertScore(
 export function getTimingLabel(quality: TimingQuality): string {
   switch (quality) {
     case TimingQuality.PERFECT:
-      return 'MINTED! 💹';
+      return 'МИНТ! 💹';
     case TimingQuality.GOOD:
-      return 'CASH! 💰';
+      return 'КЭШ! 💰';
     case TimingQuality.NORMAL:
-      return 'HYPE';
+      return 'ХАЙП';
     case TimingQuality.POOR:
-      return 'WEAK BRO...';
+      return 'СЛАБО БРО...';
   }
 }
 

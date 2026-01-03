@@ -11,51 +11,139 @@ interface ShopProps {
 }
 
 export const Shop: React.FC<ShopProps> = ({ state, onPurchase, onBack }) => {
+  // Вычисляем минимальную цену среди всех товаров
+  const allPrices = [
+    ...WORDS.map(w => w.price),
+    ...Object.values(DIFFICULTY_CONFIG).map(c => c.price).filter(p => p > 0)
+  ];
+  const minPrice = Math.min(...allPrices);
+  const hasInsufficientFunds = state.coins < minPrice;
+
   return (
-    <div className="flex flex-col items-center p-[clamp(0.25rem,2vw,2rem)] bg-[#050505] h-screen w-screen text-white relative overflow-hidden">
+    <div className="flex flex-col items-center p-[clamp(0.25rem,1.5vw,1.5rem)] bg-[#050505] h-screen w-screen text-white relative overflow-y-auto overflow-x-hidden">
       <div className="absolute inset-0 tattoo-pattern opacity-10 pointer-events-none"></div>
       <div className="absolute inset-0 opacity-15 pointer-events-none" style={{backgroundImage: 'radial-gradient(#d4af37 2px, transparent 2px)', backgroundSize: 'clamp(40px, 8vw, 80px) clamp(40px, 8vw, 80px)'}}></div>
 
-      <div className="z-10 text-center mb-[clamp(0.5rem,5vh,5rem)] mt-[clamp(0.5rem,3vh,3rem)]">
-        <h1 className="unbounded font-black italic luxury-gradient gold-glow drop-shadow-2xl" style={{fontSize: 'clamp(1.5rem, 7vw, 9rem)'}}>WORLD BOUTIQUE</h1>
-        <p className="oswald text-[#D4AF37] tracking-[1.2em] uppercase mt-[clamp(0.25rem,1.5vh,1.5rem)] font-black" style={{fontSize: 'clamp(0.35rem,0.875vw,0.875rem)'}}>Invest in your supreme dominance</p>
+      {/* Кнопка "Назад" вверху слева */}
+      <button 
+        onClick={onBack}
+        className="absolute top-[clamp(0.5rem,2vh,2rem)] left-[clamp(0.5rem,2vw,2rem)] z-30 flex items-center gap-[clamp(0.25rem,1vw,1rem)] bg-black/80 backdrop-blur-sm border-[clamp(2px,0.3vw,4px)] border-zinc-700 hover:border-[#D4AF37] hover:bg-black/90 px-[clamp(0.5rem,2vw,2rem)] py-[clamp(0.25rem,1vh,1rem)] rounded-[clamp(0.5rem,2vw,1.5rem)] transition-all cursor-pointer group"
+        style={{fontSize: 'clamp(0.5rem, 1.5vw, 1.25rem)'}}
+      >
+        <span className="text-[#D4AF37] group-hover:text-white transition-colors" style={{fontSize: 'clamp(0.75rem, 2vw, 1.5rem)'}}>←</span>
+        <span className="font-black uppercase oswald text-white">ПЕНТХАУС</span>
+      </button>
+
+      <div className="z-10 text-center mb-[clamp(0.5rem,2vh,2rem)] mt-[clamp(0.25rem,1.5vh,1.5rem)] flex flex-col items-center gap-[clamp(0.25rem,1vh,1rem)]">
+        <h1 className="unbounded font-black italic luxury-gradient gold-glow drop-shadow-2xl" style={{fontSize: 'clamp(1rem, 4vw, 4rem)'}}>МИРОВОЙ БУТИК</h1>
+        <div className={`font-black oswald flex items-center gap-[clamp(0.5rem,1.5vw,1.5rem)] transition-all ${hasInsufficientFunds ? 'animate-pulse' : ''}`} style={{fontSize: 'clamp(0.75rem, 2vw, 2rem)'}}>
+          <span className="text-zinc-500 uppercase tracking-[0.6em]" style={{fontSize: 'clamp(0.35rem,0.8vw,0.875rem)'}}>💰 БАЛАНС:</span>
+          <span className={`tabular-nums drop-shadow-[0_0_30px_currentColor] ${hasInsufficientFunds ? 'text-[#FF6B6B]' : 'text-[#32CD32]'}`} style={{fontSize: 'clamp(1.5rem, 4vw, 3.5rem)', textShadow: hasInsufficientFunds ? '0 0 40px #FF6B6B' : '0 0 40px #32CD32'}}>
+            {state.coins.toLocaleString()} <span className="diamond-sparkle inline-block">💎</span>
+          </span>
+        </div>
       </div>
       
-      <div className="w-full max-w-[95vw] grid lg:grid-cols-2 gap-[clamp(0.5rem,5vw,5rem)] z-10 px-[clamp(0.25rem,1.5vw,1.5rem)] overflow-y-auto" style={{maxHeight: 'calc(100vh - clamp(8rem, 20vh, 20rem))'}}>
+      <div className="w-full grid lg:grid-cols-2 gap-[clamp(0.5rem,3vw,3rem)] z-10 px-[clamp(0.25rem,1.5vw,1.5rem)] flex-1">
         {/* Ассеты */}
         <div className="space-y-[clamp(0.5rem,3vh,3rem)]">
           <div className="flex items-center gap-[clamp(0.25rem,1.5vw,1.5rem)]">
             <span className="diamond-sparkle" style={{fontSize: 'clamp(1.5rem, 4vw, 3.75rem)'}}>💸</span>
-            <h2 className="font-black border-b-[clamp(2px,0.5vw,8px)] border-[#FF1493] oswald tracking-[0.3em] text-[#FF1493] uppercase italic" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)', paddingBottom: 'clamp(0.25rem,1.5vh,1.5rem)'}}>POWER ASSETS</h2>
+            <h2 className="font-black border-b-[clamp(2px,0.5vw,8px)] border-[#FF1493] oswald tracking-[0.3em] text-[#FF1493] uppercase italic" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)', paddingBottom: 'clamp(0.25rem,1.5vh,1.5rem)'}}>СИЛОВЫЕ АКТИВЫ</h2>
           </div>
           <div className="space-y-[clamp(0.5rem,2vh,2rem)]">
             {WORDS.map(word => {
               const owned = state.ownedWords.includes(word.id);
               const canAfford = state.coins >= word.price;
-              return (
-                <div key={word.id} className={`
-                    bg-[#111]/90 backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center shadow-3xl transition-all relative overflow-hidden group
-                    ${owned ? 'border-zinc-800 opacity-60' : 'border-[#D4AF37]/40 hover:border-[#D4AF37] hover:scale-[1.04]'}
-                `} style={{padding: 'clamp(0.5rem, 2.5vw, 2.5rem)'}}>
-                  <div className="relative z-10">
-                    <div className="font-black uppercase oswald italic flex items-center gap-[clamp(0.125rem,1vw,1rem)]" style={{ color: word.color, fontSize: 'clamp(0.75rem, 3vw, 3rem)' }}>
-                        {word.text}
-                    </div>
-                    <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>{word.character} • STATUS: SUPREME</div>
-                    <div className="mt-[clamp(0.125rem,1vh,1rem)] flex gap-[clamp(0.125rem,0.75vw,0.75rem)]">
-                        {Array.from({length: 6}).map((_, i) => <span key={i} className="text-[#D4AF37]" style={{fontSize: 'clamp(0.35rem,0.875vw,0.875rem)'}}>★</span>)}
+              
+              // Состояние 1: Активен (куплено = используется)
+              if (owned) {
+                return (
+                  <div key={word.id} 
+                    className="backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center transition-all relative overflow-hidden"
+                    style={{
+                      padding: 'clamp(0.5rem, 2.5vw, 2.5rem)',
+                      background: word.color === '#D4AF37' ? 'linear-gradient(135deg, rgba(212,175,55,0.3), rgba(212,175,55,0.1))' : 
+                                  word.color === '#32CD32' ? 'linear-gradient(135deg, rgba(50,205,50,0.3), rgba(50,205,50,0.1))' : 
+                                  word.color === '#FF1493' ? 'linear-gradient(135deg, rgba(255,20,147,0.3), rgba(255,20,147,0.1))' : 
+                                  'linear-gradient(135deg, rgba(30,144,255,0.3), rgba(30,144,255,0.1))',
+                      borderColor: word.color,
+                      boxShadow: `0 0 40px ${word.color}`
+                    }}>
+                    <div className="relative z-10 flex-1">
+                      <div className="font-black uppercase oswald italic flex items-center gap-[clamp(0.25rem,1vw,1rem)]" style={{ color: word.color, fontSize: 'clamp(0.75rem, 3vw, 3rem)' }}>
+                        <span className="text-[#32CD32]" style={{fontSize: 'clamp(1rem, 3.5vw, 3.5rem)'}}>✔</span>
+                        <span className="line-clamp-1 lg:line-clamp-2">{word.text}</span>
+                      </div>
+                      <div className="text-[#32CD32] font-black mt-[clamp(0.25rem,1vh,1rem)] uppercase tracking-[0.3em] flex items-center gap-[clamp(0.25rem,1vw,1rem)]" style={{fontSize: 'clamp(0.4rem,1vw,1rem)'}}>
+                        <span>⚡</span>
+                        <span>ИСПОЛЬЗУЕТСЯ</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="z-10">
-                    <Button 
+                );
+              }
+              
+              // Состояние 3: Можно купить
+              if (canAfford) {
+                return (
+                  <div key={word.id} className={`
+                      bg-[#111]/90 backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center shadow-3xl transition-all relative overflow-hidden group cursor-pointer border-[#D4AF37]/40 hover:border-[#D4AF37] hover:scale-[1.04]
+                  `} style={{padding: 'clamp(0.5rem, 2.5vw, 2.5rem)'}}>
+                    <div className="relative z-10 flex-1">
+                      <div className="font-black uppercase oswald italic flex items-center gap-[clamp(0.125rem,1vw,1rem)]" style={{ color: word.color, fontSize: 'clamp(0.75rem, 3vw, 3rem)' }}>
+                        <span className="line-clamp-1 lg:line-clamp-2">{word.text}</span>
+                      </div>
+                      <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>{word.character} • СТАТУС: ВЕРХОВНЫЙ</div>
+                      <div className="mt-[clamp(0.25rem,1vh,1rem)] flex items-center gap-[clamp(0.5rem,1.5vw,1.5rem)]">
+                        <div className="font-black text-[#D4AF37] flex items-center gap-[clamp(0.25rem,0.75vw,0.75rem)] drop-shadow-[0_0_15px_#D4AF37]" style={{fontSize: 'clamp(0.6rem, 1.75vw, 1.75rem)'}}>
+                          <span className="diamond-sparkle">💎</span>
+                          <span className="tabular-nums">{word.price.toLocaleString()}</span>
+                        </div>
+                        <div className="flex gap-[clamp(0.125rem,0.75vw,0.75rem)]">
+                          {Array.from({length: 6}).map((_, i) => <span key={i} className="text-[#D4AF37]" style={{fontSize: 'clamp(0.35rem,0.875vw,0.875rem)'}}>★</span>)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="z-10">
+                      <Button 
                         onClick={() => onPurchase('word', word.id, word.price)}
-                        disabled={owned || !canAfford}
-                        variant={owned ? 'primary' : 'secondary'}
-                        className={`font-black rounded-[clamp(0.5rem,4vw,2rem)] ${!owned && canAfford ? 'animate-bounce-short' : ''}`}
+                        variant="secondary"
+                        className="font-black rounded-[clamp(0.5rem,4vw,2rem)] animate-bounce-short"
                         style={{padding: 'clamp(0.25rem,1.5vh,1.5rem) clamp(0.5rem,3vw,3rem)', fontSize: 'clamp(0.5rem, 1.25vw, 1.25rem)'}}
-                    >
-                        {owned ? 'ACQUIRED' : `${word.price.toLocaleString()} 💎`}
-                    </Button>
+                      >
+                        КУПИТЬ ЗА {word.price.toLocaleString()} 💎
+                      </Button>
+                    </div>
+                  </div>
+                );
+              }
+              
+              // Состояние 4: Недостаточно денег
+              return (
+                <div key={word.id} className={`
+                    bg-[#111]/90 backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center shadow-3xl transition-all relative overflow-hidden border-zinc-800/50
+                `} style={{padding: 'clamp(0.5rem, 2.5vw, 2.5rem)'}}>
+                  <div className="relative z-10 flex-1">
+                    <div className="font-black uppercase oswald italic flex items-center gap-[clamp(0.125rem,1vw,1rem)]" style={{ color: word.color, fontSize: 'clamp(0.75rem, 3vw, 3rem)' }}>
+                      <span className="line-clamp-1 lg:line-clamp-2">{word.text}</span>
+                    </div>
+                    <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>{word.character} • СТАТУС: ВЕРХОВНЫЙ</div>
+                    <div className="mt-[clamp(0.25rem,1vh,1rem)] flex items-center gap-[clamp(0.5rem,1.5vw,1.5rem)]">
+                      <div className="font-black text-[#D4AF37] flex items-center gap-[clamp(0.25rem,0.75vw,0.75rem)] drop-shadow-[0_0_15px_#D4AF37]" style={{fontSize: 'clamp(0.6rem, 1.75vw, 1.75rem)'}}>
+                        <span className="diamond-sparkle">💎</span>
+                        <span className="tabular-nums">{word.price.toLocaleString()}</span>
+                      </div>
+                      <div className="flex gap-[clamp(0.125rem,0.75vw,0.75rem)]">
+                        {Array.from({length: 6}).map((_, i) => <span key={i} className="text-[#D4AF37]" style={{fontSize: 'clamp(0.35rem,0.875vw,0.875rem)'}}>★</span>)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="z-10 flex items-center">
+                    <div className="text-zinc-400 font-black uppercase tracking-[0.2em] flex items-center gap-[clamp(0.25rem,1vw,1rem)] oswald" style={{fontSize: 'clamp(0.45rem, 1.1vw, 1rem)'}}>
+                      <span>⚠</span>
+                      <span>НЕДОСТАТОЧНО ДЕНЕГ</span>
+                    </div>
                   </div>
                 </div>
               );
@@ -67,7 +155,7 @@ export const Shop: React.FC<ShopProps> = ({ state, onPurchase, onBack }) => {
         <div className="space-y-[clamp(0.5rem,3vh,3rem)]">
           <div className="flex items-center gap-[clamp(0.25rem,1.5vw,1.5rem)]">
             <span className="diamond-sparkle" style={{fontSize: 'clamp(1.5rem, 4vw, 3.75rem)'}}>🏛️</span>
-            <h2 className="font-black border-b-[clamp(2px,0.5vw,8px)] border-[#1e90ff] oswald tracking-[0.3em] text-[#1e90ff] uppercase italic" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)', paddingBottom: 'clamp(0.25rem,1.5vh,1.5rem)'}}>GLOBAL DOMAINS</h2>
+            <h2 className="font-black border-b-[clamp(2px,0.5vw,8px)] border-[#1e90ff] oswald tracking-[0.3em] text-[#1e90ff] uppercase italic" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)', paddingBottom: 'clamp(0.25rem,1.5vh,1.5rem)'}}>ГЛОБАЛЬНЫЕ ДОМЕНЫ</h2>
           </div>
           <div className="space-y-[clamp(0.5rem,2vh,2rem)]">
             {Object.entries(DIFFICULTY_CONFIG).map(([key, config]) => {
@@ -76,29 +164,99 @@ export const Shop: React.FC<ShopProps> = ({ state, onPurchase, onBack }) => {
               const canAfford = state.coins >= config.price;
               if (diff === Difficulty.EASY) return null;
 
-              return (
-                <div key={key} className={`
-                    bg-[#111]/90 backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center shadow-3xl transition-all relative overflow-hidden group
-                    ${unlocked ? 'border-zinc-800 opacity-60' : 'border-[#1e90ff]/40 hover:border-[#1e90ff] hover:scale-[1.04]'}
-                `} style={{padding: 'clamp(0.5rem, 2.5vw, 2.5rem)'}}>
-                  <div className="relative z-10">
-                    <div className="font-black uppercase oswald italic text-white" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)'}}>{config.label}</div>
-                    <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>PROFIT MULTIPLIER: x{config.factor}</div>
-                    <div className="mt-[clamp(0.25rem,1.25vh,1.25rem)] flex gap-[clamp(0.25rem,1.25vw,1.25rem)]">
-                        <span className="bg-[#1e90ff]/30 text-[#1e90ff] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ELITE</span>
-                        <span className="bg-[#D4AF37]/30 text-[#D4AF37] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>EXCLUSIVE</span>
+              // Состояние 1: Активен (открыто = используется)
+              if (unlocked) {
+                return (
+                  <div key={key} 
+                    className="backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] border-[#1e90ff] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center transition-all relative overflow-hidden"
+                    style={{
+                      padding: 'clamp(0.5rem, 2.5vw, 2.5rem)',
+                      background: 'linear-gradient(135deg, rgba(30,144,255,0.3), rgba(30,144,255,0.1))',
+                      boxShadow: '0 0 40px #1e90ff'
+                    }}>
+                    <div className="relative z-10 flex-1">
+                      <div className="font-black uppercase oswald italic flex items-center gap-[clamp(0.25rem,1vw,1rem)] text-white" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)'}}>
+                        <span className="text-[#32CD32]" style={{fontSize: 'clamp(1rem, 3.5vw, 3.5rem)'}}>✔</span>
+                        <span className="line-clamp-1 lg:line-clamp-2">{config.label}</span>
+                      </div>
+                      <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>МНОЖИТЕЛЬ ПРОФИТА: x{config.factor}</div>
+                      <div className="mt-[clamp(0.25rem,1.25vh,1.25rem)] flex items-center gap-[clamp(0.25rem,1.25vw,1.25rem)]">
+                        <div className="text-[#32CD32] font-black uppercase tracking-[0.2em] flex items-center gap-[clamp(0.25rem,1vw,1rem)] oswald" style={{fontSize: 'clamp(0.4rem,1vw,1rem)'}}>
+                          <span>⚡</span>
+                          <span>ОТКРЫТО</span>
+                        </div>
+                        <div className="flex gap-[clamp(0.25rem,1.25vw,1.25rem)]">
+                          <span className="bg-[#1e90ff]/30 text-[#1e90ff] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ЭЛИТА</span>
+                          <span className="bg-[#D4AF37]/30 text-[#D4AF37] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ЭКСКЛЮЗИВ</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="z-10">
-                    <Button 
+                );
+              }
+              
+              // Состояние 3: Можно купить
+              if (canAfford) {
+                return (
+                  <div key={key} className={`
+                      bg-[#111]/90 backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center shadow-3xl transition-all relative overflow-hidden group cursor-pointer border-[#1e90ff]/40 hover:border-[#1e90ff] hover:scale-[1.04]
+                  `} style={{padding: 'clamp(0.5rem, 2.5vw, 2.5rem)'}}>
+                    <div className="relative z-10 flex-1">
+                      <div className="font-black uppercase oswald italic text-white" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)'}}>
+                        <span className="line-clamp-1 lg:line-clamp-2">{config.label}</span>
+                      </div>
+                      <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>МНОЖИТЕЛЬ ПРОФИТА: x{config.factor}</div>
+                      <div className="mt-[clamp(0.25rem,1.25vh,1.25rem)] flex items-center gap-[clamp(0.5rem,1.5vw,1.5rem)]">
+                        <div className="font-black text-[#1e90ff] flex items-center gap-[clamp(0.25rem,0.75vw,0.75rem)] drop-shadow-[0_0_15px_#1e90ff]" style={{fontSize: 'clamp(0.6rem, 1.75vw, 1.75rem)'}}>
+                          <span className="diamond-sparkle">💎</span>
+                          <span className="tabular-nums">{config.price.toLocaleString()}</span>
+                        </div>
+                        <div className="flex gap-[clamp(0.25rem,1.25vw,1.25rem)]">
+                          <span className="bg-[#1e90ff]/30 text-[#1e90ff] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ЭЛИТА</span>
+                          <span className="bg-[#D4AF37]/30 text-[#D4AF37] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ЭКСКЛЮЗИВ</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="z-10">
+                      <Button 
                         onClick={() => onPurchase('diff', diff, config.price)}
-                        disabled={unlocked || !canAfford}
-                        variant={unlocked ? 'primary' : 'secondary'}
-                        className="font-black rounded-[clamp(0.5rem,4vw,2rem)]"
+                        variant="secondary"
+                        className="font-black rounded-[clamp(0.5rem,4vw,2rem)] animate-bounce-short"
                         style={{padding: 'clamp(0.25rem,1.5vh,1.5rem) clamp(0.5rem,3vw,3rem)', fontSize: 'clamp(0.5rem, 1.25vw, 1.25rem)'}}
-                    >
-                        {unlocked ? 'UNLOCKED' : `${config.price.toLocaleString()} 💎`}
-                    </Button>
+                      >
+                        КУПИТЬ ЗА {config.price.toLocaleString()} 💎
+                      </Button>
+                    </div>
+                  </div>
+                );
+              }
+              
+              // Состояние 4: Недостаточно денег
+              return (
+                <div key={key} className={`
+                    bg-[#111]/90 backdrop-blur-2xl border-[clamp(2px,0.3vw,4px)] rounded-[clamp(0.75rem,6vw,3rem)] flex justify-between items-center shadow-3xl transition-all relative overflow-hidden border-zinc-800/50
+                `} style={{padding: 'clamp(0.5rem, 2.5vw, 2.5rem)'}}>
+                  <div className="relative z-10 flex-1">
+                    <div className="font-black uppercase oswald italic text-white" style={{fontSize: 'clamp(0.75rem, 3vw, 3rem)'}}>
+                      <span className="line-clamp-1 lg:line-clamp-2">{config.label}</span>
+                    </div>
+                    <div className="text-zinc-500 font-black mt-[clamp(0.125rem,0.75vh,0.75rem)] uppercase tracking-[0.3em]" style={{fontSize: 'clamp(0.3rem,0.75vw,0.75rem)'}}>МНОЖИТЕЛЬ ПРОФИТА: x{config.factor}</div>
+                    <div className="mt-[clamp(0.25rem,1.25vh,1.25rem)] flex items-center gap-[clamp(0.5rem,1.5vw,1.5rem)]">
+                      <div className="font-black text-[#1e90ff] flex items-center gap-[clamp(0.25rem,0.75vw,0.75rem)] drop-shadow-[0_0_15px_#1e90ff]" style={{fontSize: 'clamp(0.6rem, 1.75vw, 1.75rem)'}}>
+                        <span className="diamond-sparkle">💎</span>
+                        <span className="tabular-nums">{config.price.toLocaleString()}</span>
+                      </div>
+                      <div className="flex gap-[clamp(0.25rem,1.25vw,1.25rem)]">
+                        <span className="bg-[#1e90ff]/30 text-[#1e90ff] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ЭЛИТА</span>
+                        <span className="bg-[#D4AF37]/30 text-[#D4AF37] font-black rounded-xl" style={{padding: 'clamp(0.125rem,0.5vh,0.5rem) clamp(0.125rem,1vw,1rem)', fontSize: 'clamp(0.275rem,0.7vw,0.7rem)'}}>ЭКСКЛЮЗИВ</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="z-10 flex items-center">
+                    <div className="text-zinc-400 font-black uppercase tracking-[0.2em] flex items-center gap-[clamp(0.25rem,1vw,1rem)] oswald" style={{fontSize: 'clamp(0.45rem, 1.1vw, 1rem)'}}>
+                      <span>⚠</span>
+                      <span>НЕДОСТАТОЧНО ДЕНЕГ</span>
+                    </div>
                   </div>
                 </div>
               );
@@ -107,18 +265,6 @@ export const Shop: React.FC<ShopProps> = ({ state, onPurchase, onBack }) => {
         </div>
       </div>
 
-      <div className="mt-[clamp(0.5rem,6vh,6rem)] mb-[clamp(0.5rem,4vh,4rem)] flex flex-col items-center gap-[clamp(0.5rem,3vh,3rem)] w-full">
-        <div className="shiny-pants rounded-full shadow-[0_0_70px_rgba(212,175,55,0.6)]" style={{padding: 'clamp(2px,0.4vw,6px)'}}>
-            <div className="font-black oswald flex items-center gap-[clamp(0.5rem,2.5vw,2.5rem)] bg-black/98 rounded-full border-[clamp(2px,0.3vw,4px)] border-[#D4AF37]" style={{padding: 'clamp(0.5rem,2.5vh,2.5rem) clamp(0.75rem,5vw,5rem)', fontSize: 'clamp(0.75rem, 3.5vw, 4.5rem)'}}>
-                <span className="text-zinc-600 uppercase tracking-[0.6em]" style={{fontSize: 'clamp(0.35rem,0.875vw,0.875rem)'}}>TOTAL NET WORTH:</span>
-                <span className="text-[#D4AF37] drop-shadow-2xl" style={{fontSize: 'clamp(1.5rem, 6vw, 5rem)'}}>{state.coins.toLocaleString()} <span className="diamond-sparkle inline-block">💎</span></span>
-            </div>
-        </div>
-
-        <div className="flex gap-[clamp(0.5rem,2.5vw,2.5rem)]">
-            <Button onClick={onBack} variant="danger" className="font-black border-red-900 hover:bg-red-900 shadow-2xl" style={{padding: 'clamp(0.5rem,2vh,2rem) clamp(0.75rem,5vw,5rem)', fontSize: 'clamp(0.6rem, 2vw, 1.875rem)'}}>BACK TO PENTHOUSE 💨</Button>
-        </div>
-      </div>
       
       <style>{`
         @keyframes bounce-short {

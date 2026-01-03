@@ -134,3 +134,40 @@ html, body {
   background: linear-gradient(#d4af37, #ff1493);
   border-radius: 5px;
 }
+
+/* Блокировка горизонтальной ориентации на мобильных */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+  body::before {
+    content: 'Поверните устройство вертикально';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    color: #32CD32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(1.5rem, 5vw, 3rem);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+}
+
+@keyframes scroll-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-200vh);
+  }
+}
+
+.animate-scroll-up {
+  animation: scroll-up 40s linear infinite;
+  will-change: transform;
+}

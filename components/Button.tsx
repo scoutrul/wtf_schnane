@@ -16,7 +16,7 @@ export const Button: React.FC<ButtonProps> = ({
   className = '', 
   variant = 'primary' 
 }) => {
-  const baseStyles = "px-8 py-4 rounded-full font-black transform transition-all active:scale-95 border-2 uppercase tracking-tighter oswald text-lg";
+  const baseStyles = "px-8 py-4 rounded-full font-black transform transition-all active:scale-95 border-2 uppercase tracking-tighter oswald text-lg cursor-pointer";
   const variants = {
     primary: "bg-[#D4AF37] text-black border-[#C5A028] hover:bg-[#E5C158] shadow-[0_4px_15px_rgba(212,175,55,0.4)]",
     secondary: "bg-black text-[#FF1493] border-[#FF1493] hover:bg-[#FF1493] hover:text-white shadow-[0_4px_15px_rgba(255,20,147,0.3)]",

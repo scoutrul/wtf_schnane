@@ -55,19 +55,19 @@ export const DIFFICULTY_CONFIG = {
   [Difficulty.EASY]: { 
     stanzas: 1, // 1-2 четверостишия (4-8 строк)
     factor: 0.6, // Коэффициент для конвертации Score → Coins
-    label: 'LITTLE INVESTOR', 
+    label: 'ЛЁГКИЙ', 
     price: 0 // Лёгкий уровень бесплатный
   },
   [Difficulty.MEDIUM]: { 
     stanzas: 4, // 4-6 четверостиший (16-24 строки)
     factor: 1.0, 
-    label: 'CRYPTO WHALE', 
+    label: 'СРЕДНИЙ', 
     price: 120 // Средний уровень - 120 Coins
   },
   [Difficulty.HARD]: { 
     stanzas: 15, // Весь стих (58 строк = ~15 четверостиший)
     factor: 1.4, 
-    label: 'GALAXY EMPEROR', 
+    label: 'СЛОЖНЫЙ', 
     price: 300 // Сложный уровень - 300 Coins
   },
 };
