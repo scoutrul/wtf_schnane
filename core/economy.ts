@@ -3,46 +3,63 @@ import { Difficulty } from '../types';
 import { DIFFICULTY_CONFIG } from '../constants';
 
 /**
- * Модуль для работы с экономикой игры согласно ТЗ
+ * Модуль для работы с экономикой игры
  * 
- * Конвертация Score → Coins:
- * Coins = sqrt(TotalScore) × DifficultyFactor
+ * Начисление алмазов:
+ * - Первый проход: Diamonds = floor(S_current * K_difficulty / 100)
+ * - Повторный проход (побил рекорд): Diamonds = floor(ΔS * K_difficulty / 100), где ΔS = S_current - S_record
+ * - Повторный проход (не побил): Diamonds = 0
  * 
  * Коэффициенты сложности:
- * - Лёгкий: 0.6
- * - Средний: 1.0
- * - Сложный: 1.4
+ * - Лёгкий: 1.0
+ * - Средний: 1.5
+ * - Сложный: 2.0
  */
 
 /**
- * Конвертирует очки (Score) в монеты (Coins) согласно ТЗ
- * 
- * @param totalScore - общее количество очков за игру
- * @param difficulty - уровень сложности
- * @returns количество монет
- */
-export function convertScoreToCoins(totalScore: number, difficulty: Difficulty): number {
-  const factor = DIFFICULTY_CONFIG[difficulty].factor;
-  const coins = Math.sqrt(totalScore) * factor;
-  return Math.round(coins);
-}
-
-/**
- * Вычисляет количество монет, заработанных за текущую игру
- * (только за превышение предыдущего рекорда)
+ * Вычисляет количество алмазов, заработанных за текущую игру
+ * Алмазы начисляются ТОЛЬКО за улучшение результата
  * 
  * @param currentScore - текущий счет
- * @param previousBestScore - предыдущий лучший счет
+ * @param previousBestScore - предыдущий лучший счет (0 если первый проход)
  * @param difficulty - уровень сложности
- * @returns количество заработанных монет
+ * @returns количество заработанных алмазов
  */
 export function calculateCoinsGained(
   currentScore: number,
   previousBestScore: number,
   difficulty: Difficulty
 ): number {
-  const currentCoins = convertScoreToCoins(currentScore, difficulty);
-  const previousCoins = convertScoreToCoins(previousBestScore, difficulty);
-  const gained = Math.max(0, currentCoins - previousCoins);
-  return gained;
+  const factor = DIFFICULTY_CONFIG[difficulty].factor;
+  
+  // Первый проход (рекорда нет)
+  if (previousBestScore === 0) {
+    return Math.floor(currentScore * factor / 100);
+  }
+  
+  // Повторный проход - начисляем только за улучшение
+  if (currentScore > previousBestScore) {
+    const deltaScore = currentScore - previousBestScore;
+    return Math.floor(deltaScore * factor / 100);
+  }
+  
+  // Не побил рекорд - алмазов нет
+  return 0;
+}
+
+/**
+ * Вычисляет потенциальный профит (алмазы) для текущего счета
+ * Используется для отображения во время игры
+ * 
+ * @param currentScore - текущий счет
+ * @param previousBestScore - предыдущий лучший счет
+ * @param difficulty - уровень сложности
+ * @returns потенциальное количество алмазов
+ */
+export function calculatePotentialCoins(
+  currentScore: number,
+  previousBestScore: number,
+  difficulty: Difficulty
+): number {
+  return calculateCoinsGained(currentScore, previousBestScore, difficulty);
 }

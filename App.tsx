@@ -30,6 +30,9 @@ const App: React.FC = () => {
   const {
     lastScore,
     coinsGained,
+    previousRecord,
+    newRecord,
+    scoreDifference,
     handleGameFinish,
   } = useGameFinish({
     gameState,
@@ -64,7 +67,7 @@ const App: React.FC = () => {
     );
   }
 
-  if (screen === 'game' && selectedAuthor) {
+  if (screen === 'game' && selectedAuthor && selectedDifficulty) {
     return (
       <GameView
         author={selectedAuthor}
@@ -97,6 +100,9 @@ const App: React.FC = () => {
       <ResultScreen
         score={lastScore}
         coinsGained={coinsGained}
+        previousRecord={previousRecord}
+        newRecord={newRecord}
+        scoreDifference={scoreDifference}
         onBack={navigateToAuthorSelect}
         onRetry={selectedAuthor && selectedDifficulty ? handleRetry : undefined}
       />

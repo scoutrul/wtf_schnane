@@ -7,7 +7,7 @@ import { Button } from './Button';
 import { calculateInsertScore, getTimingQuality, getTimingLabel, getTimingColor, calculateSpamPenalty } from '../core/scoring';
 import { updateCombo, createInitialComboState, ComboState } from '../core/combo';
 import { getTimingOffset } from '../core/rhythm';
-import { convertScoreToCoins } from '../core/economy';
+import { calculatePotentialCoins } from '../core/economy';
 
 interface GameViewProps {
   author: Author;
@@ -19,6 +19,7 @@ interface GameViewProps {
 
 export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameState, onFinish, onQuit }) => {
   const [score, setScore] = useState(0);
+  const scoreRef = useRef<number>(0); // Ref для актуального значения score
   const [comboState, setComboState] = useState<ComboState>(createInitialComboState());
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [beatCount, setBeatCount] = useState(0);
@@ -50,12 +51,15 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
     setIsCountingDown(false);
     isCountingDownRef.current = false;
     if (finished) {
-      setTimeout(() => onFinish(score), 800);
+      // Используем ref для получения актуального значения score
+      const finalScore = scoreRef.current;
+      console.log('stopGame: finishing with score', finalScore);
+      setTimeout(() => onFinish(finalScore), 800);
     } else {
       // Выход из игры - возвращаемся на главный экран
       onQuit();
     }
-  }, [onFinish, onQuit, score]);
+  }, [onFinish, onQuit]);
 
   const startGame = useCallback(() => {
     // Останавливаем текущую игру если она запущена
@@ -71,6 +75,7 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
     currentLineIndexRef.current = 0;
     setCurrentLineIndex(0);
     setScore(0);
+    scoreRef.current = 0;
     setComboState(createInitialComboState());
     setBeatCount(0);
     setLinePresses(0);
@@ -208,7 +213,11 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
       spawnFeedback(`-${spamPenalty} СПАМ!`, '#ff0000');
     }
     
-    setScore(prev => Math.max(0, prev + result.total - spamPenalty));
+    setScore(prev => {
+      const newScore = Math.max(0, prev + result.total - spamPenalty);
+      scoreRef.current = newScore; // Обновляем ref
+      return newScore;
+    });
     
     // Показываем фидбек тайминга (если не было повтора и нет штрафа)
     if ((!wasRepeated || !isComboBroken) && spamPenalty === 0) {
@@ -283,8 +292,8 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
             </div>
             <div className="flex items-center gap-[clamp(0.25rem,1vw,1rem)]">
               <span className="text-[#D4AF37] font-black uppercase oswald tracking-[0.3em]" style={{fontSize: 'clamp(0.4rem,1vw,1rem)'}}>ПРОФИТ:</span>
-              <span className="text-[#D4AF37] font-black tabular-nums oswald flex items-center gap-[clamp(0.125rem,0.5vw,0.5rem)] drop-shadow-[0_0_20px_rgba(212,175,55,0.6)]" style={{fontSize: 'clamp(1rem,2.5vw,2.5rem)'}}>
-                {convertScoreToCoins(score, difficulty).toLocaleString()}
+              <span className={`font-black tabular-nums oswald flex items-center gap-[clamp(0.125rem,0.5vw,0.5rem)] drop-shadow-[0_0_20px_rgba(212,175,55,0.6)] ${score > (gameState.highScores[author]?.[difficulty] || 0) ? 'text-[#D4AF37]' : 'text-zinc-500'}`} style={{fontSize: 'clamp(1rem,2.5vw,2.5rem)'}}>
+                {calculatePotentialCoins(score, gameState.highScores[author]?.[difficulty] || 0, difficulty).toLocaleString()}
                 <span className="diamond-sparkle" style={{fontSize: 'clamp(0.75rem,2vw,2rem)'}}>💎</span>
               </span>
             </div>

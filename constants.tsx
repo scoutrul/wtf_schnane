@@ -57,17 +57,17 @@ export const WORDS: (WordInstrument & { color: string })[] = [
 // Конфигурация сложностей согласно ТЗ
 export const DIFFICULTY_CONFIG: Record<Difficulty, DifficultyConfig> = {
   [Difficulty.EASY]: { 
-    factor: 0.6, 
+    factor: 1.0, // Коэффициент для начисления алмазов
     label: 'ЛЁГКИЙ', 
     price: 0 
   },
   [Difficulty.MEDIUM]: { 
-    factor: 1.0, 
+    factor: 1.5, // Коэффициент для начисления алмазов
     label: 'СРЕДНИЙ', 
     price: 120 // Средний уровень - 120 Coins
   },
   [Difficulty.HARD]: { 
-    factor: 1.4, 
+    factor: 2.0, // Коэффициент для начисления алмазов
     label: 'СЛОЖНЫЙ', 
     price: 300 // Сложный уровень - 300 Coins
   },

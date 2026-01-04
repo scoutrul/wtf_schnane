@@ -19,14 +19,32 @@ export function useGameFinish({
 }: UseGameFinishProps) {
   const [lastScore, setLastScore] = useState(0);
   const [coinsGained, setCoinsGained] = useState(0);
+  const [previousRecord, setPreviousRecord] = useState(0);
+  const [newRecord, setNewRecord] = useState(0);
+  const [scoreDifference, setScoreDifference] = useState(0);
 
   const handleGameFinish = useCallback((score: number) => {
-    if (!selectedAuthor) return;
+    if (!selectedAuthor || !selectedDifficulty) {
+      console.warn('handleGameFinish: missing author or difficulty', { selectedAuthor, selectedDifficulty, score });
+      return;
+    }
     
     // Вычисляем gained до обновления стейта
     const prevBest = gameState.highScores[selectedAuthor]?.[selectedDifficulty] || 0;
     const gained = calculateCoinsGained(score, prevBest, selectedDifficulty);
+    const newBest = Math.max(prevBest, score);
+    const difference = score > prevBest ? score - prevBest : 0;
     
+    console.log('handleGameFinish:', { score, prevBest, gained, newBest, difference, selectedAuthor, selectedDifficulty });
+    
+    // Сначала обновляем локальное состояние для ResultScreen
+    setLastScore(score);
+    setCoinsGained(gained);
+    setPreviousRecord(prevBest);
+    setNewRecord(newBest);
+    setScoreDifference(difference);
+    
+    // Затем обновляем глобальное состояние
     setGameState(prev => {
       return {
         ...prev,
@@ -35,20 +53,22 @@ export function useGameFinish({
           ...prev.highScores,
           [selectedAuthor]: {
             ...prev.highScores[selectedAuthor],
-            [selectedDifficulty]: Math.max(prevBest, score)
+            [selectedDifficulty]: newBest
           }
         }
       };
     });
     
-    setLastScore(score);
-    setCoinsGained(gained);
+    // Переходим на экран результата
     onNavigateToResult();
   }, [selectedAuthor, selectedDifficulty, setGameState, onNavigateToResult, gameState.highScores]);
 
   return {
     lastScore,
     coinsGained,
+    previousRecord,
+    newRecord,
+    scoreDifference,
     handleGameFinish,
   };
 }
