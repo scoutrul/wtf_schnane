@@ -32,7 +32,7 @@ export const DifficultySelect: React.FC<DifficultySelectProps> = ({
         style={{fontSize: 'clamp(0.5rem, 1.5vw, 1.25rem)'}}
       >
         <span className="text-[#D4AF37] group-hover:text-white transition-colors" style={{fontSize: 'clamp(0.75rem, 2vw, 1.5rem)'}}>←</span>
-        <span className="font-black uppercase oswald text-white">НАЗАД</span>
+        <span className="font-black uppercase oswald text-white">БЭК</span>
       </button>
 
       <div className="z-10 text-center space-y-[clamp(0.5rem,2vh,2rem)] w-full max-w-[768px] mx-auto flex flex-col items-center">

@@ -158,7 +158,7 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
     const word = WORDS.find(w => w.id === wordId);
     if (!word) return;
 
-    audioEngine.playWord(word.pitch);
+    audioEngine.playWord(word.pitch, word.rhythm);
     const now = Date.now();
     const timingOffset = getTimingOffset(now, startTimeRef.current);
     const timingQualityEnum = getTimingQuality(timingOffset);

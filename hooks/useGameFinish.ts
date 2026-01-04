@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Author, Difficulty, GameState } from '../types';
-import { convertScoreToCoins } from '../core/economy';
+import { calculateCoinsGained } from '../core/economy';
 
 interface UseGameFinishProps {
   gameState: GameState;
@@ -23,10 +23,11 @@ export function useGameFinish({
   const handleGameFinish = useCallback((score: number) => {
     if (!selectedAuthor) return;
     
-    const gained = convertScoreToCoins(score, selectedDifficulty);
-
+    // Вычисляем gained до обновления стейта
+    const prevBest = gameState.highScores[selectedAuthor]?.[selectedDifficulty] || 0;
+    const gained = calculateCoinsGained(score, prevBest, selectedDifficulty);
+    
     setGameState(prev => {
-      const prevBest = prev.highScores[selectedAuthor]?.[selectedDifficulty] || 0;
       return {
         ...prev,
         coins: prev.coins + gained,
@@ -43,7 +44,7 @@ export function useGameFinish({
     setLastScore(score);
     setCoinsGained(gained);
     onNavigateToResult();
-  }, [selectedAuthor, selectedDifficulty, setGameState, onNavigateToResult]);
+  }, [selectedAuthor, selectedDifficulty, setGameState, onNavigateToResult, gameState.highScores]);
 
   return {
     lastScore,

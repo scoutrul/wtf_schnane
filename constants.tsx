@@ -1,5 +1,5 @@
 
-import { Difficulty, WordInstrument, Author, AuthorConfig } from './types';
+import { Difficulty, WordInstrument, Author, AuthorConfig, RhythmNotation } from './types';
 
 // Ритмические параметры согласно ТЗ
 export const BPM = 96;
@@ -14,10 +14,10 @@ export const WORDS: (WordInstrument & { color: string })[] = [
     syllables: 2, 
     rhythm: '2×1/8', 
     character: 'БАЗА', 
-    price: 0, // Первое слово бесплатно
-    pitch: 440, 
+    price: 0,
+    pitch: 120, 
     color: '#D4AF37',
-    description: 'Базовый ритм'
+    description: '2 восьмых'
   },
   { 
     id: 'faa', 
@@ -25,32 +25,32 @@ export const WORDS: (WordInstrument & { color: string })[] = [
     syllables: 1, 
     rhythm: '1×1/4', 
     character: 'ВАААЙБ', 
-    price: 40, // 2-е слово - 40 Coins
-    pitch: 350, 
+    price: 40,
+    pitch: 80, 
     color: '#32CD32',
-    description: 'Длинный ритм'
+    description: '1 четвертная'
   },
   { 
     id: 'wtfa', 
     text: 'втфа', 
     syllables: 2, 
     rhythm: '2×1/16', 
-    character: 'Четкий вайб', 
-    price: 90, // 3-е слово - 90 Coins
-    pitch: 500, 
+    character: 'Вопросительный вайб', 
+    price: 90,
+    pitch: 180, 
     color: '#FF1493',
-    description: 'Острый ритм'
+    description: '2 шестнадцатых'
   },
   { 
     id: 'shneine', 
-    text: 'шнейне', 
+    text: 'шнэйне', 
     syllables: 2, 
     rhythm: '2×1/8', 
     character: 'Тяжелый вайб', 
-    price: 160, // 4-е слово - 160 Coins
-    pitch: 220, 
+    price: 160,
+    pitch: 140, 
     color: '#1E90FF',
-    description: 'Тяжёлый ритм'
+    description: '2 восьмых'
   },
 ];
 

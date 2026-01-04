@@ -21,11 +21,20 @@ export interface AuthorConfig {
   color: string;
 }
 
+// Тип для ритмической записи: формат "количество×1/знаменатель"
+// Примеры: '1×1/4', '2×1/8', '2×1/16', '4×1/8'
+export type RhythmNotation = 
+  | `${number}×1/4`
+  | `${number}×1/8`
+  | `${number}×1/16`
+  | `${number}×1/2`
+  | `${number}×1/32`;
+
 export interface WordInstrument {
   id: string;
   text: string;
   syllables: number;
-  rhythm: string; // e.g. "2x1/8"
+  rhythm: RhythmNotation;
   character: string;
   description: string;
   price: number;

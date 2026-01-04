@@ -7,7 +7,7 @@ const STORAGE_KEY = 'pepi_fashnel_save_v9_author_system';
 
 const INITIAL_STATE: GameState = {
   score: 0,
-  coins: 0,
+  coins: 500,
   ownedWords: ['pepe'], // Первое слово бесплатно
   ownedAuthors: [Author.PUSHKIN], // Пушкин доступен сразу
   unlockedDifficulties: {
@@ -38,9 +38,10 @@ const INITIAL_STATE: GameState = {
 function migrateOldState(oldState: any): GameState {
   // Если это старая версия без авторов
   if (!oldState.ownedAuthors || !oldState.unlockedDifficulties || typeof oldState.unlockedDifficulties === 'object' && !oldState.unlockedDifficulties[Author.PUSHKIN]) {
+    const existingCoins = oldState.coins || 0;
     const migrated: GameState = {
       ...INITIAL_STATE,
-      coins: oldState.coins || 0,
+      coins: Math.max(500, existingCoins), // Минимум 500 монет для всех игроков
       ownedWords: oldState.ownedWords || ['pepe'],
       ownedAuthors: [Author.PUSHKIN], // Пушкин доступен
       unlockedDifficulties: {
@@ -70,7 +71,12 @@ function migrateOldState(oldState: any): GameState {
     };
     return migrated;
   }
-  return oldState as GameState;
+  // Для существующих сохранений также устанавливаем минимум 500
+  const existingState = oldState as GameState;
+  if (existingState.coins < 500) {
+    existingState.coins = 500;
+  }
+  return existingState;
 }
 
 /**
