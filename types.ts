@@ -15,7 +15,7 @@ export interface AuthorConfig {
   id: Author;
   name: string;
   displayName: string;
-  poem: string[];
+  poem: string[][]; // Массив фрагментов: [легкий, средний, сложный]
   style: string;
   price: number;
   color: string;
@@ -43,6 +43,12 @@ export interface WordInstrument {
 
 export interface Stanza {
   lines: string[];
+}
+
+export interface DifficultyConfig {
+  factor: number; // Коэффициент для конвертации Score → Coins
+  label: string; // Отображаемое название уровня
+  price: number; // Цена разблокировки уровня в монетах
 }
 
 export interface ScoreBreakdown {

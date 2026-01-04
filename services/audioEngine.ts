@@ -1,6 +1,8 @@
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
+  private currentOscillator: OscillatorNode | null = null;
+  private currentGain: GainNode | null = null;
 
   init() {
     if (!this.ctx) {
@@ -8,6 +10,25 @@ export class AudioEngine {
     }
     if (this.ctx.state === 'suspended') {
       this.ctx.resume();
+    }
+  }
+
+  private stopCurrentSound() {
+    if (this.currentOscillator) {
+      try {
+        this.currentOscillator.stop();
+      } catch (e) {
+        // Игнорируем ошибки, если осциллятор уже остановлен
+      }
+      this.currentOscillator = null;
+    }
+    if (this.currentGain) {
+      try {
+        this.currentGain.disconnect();
+      } catch (e) {
+        // Игнорируем ошибки
+      }
+      this.currentGain = null;
     }
   }
 
@@ -31,8 +52,16 @@ export class AudioEngine {
   // duration определяется из rhythm: '1×1/4' = 0.5s, '2×1/8' = 0.5s, '2×1/16' = 0.25s
   playWord(pitch: number, rhythm?: string) {
     if (!this.ctx) return;
+    
+    // Останавливаем предыдущий звук, если он играет
+    this.stopCurrentSound();
+    
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
+    
+    // Сохраняем ссылки для возможности остановки
+    this.currentOscillator = osc;
+    this.currentGain = gain;
 
     osc.type = 'sine';
     
@@ -75,6 +104,16 @@ export class AudioEngine {
 
     osc.start();
     osc.stop(this.ctx.currentTime + duration);
+    
+    // Очищаем ссылки после окончания звука
+    osc.onended = () => {
+      if (this.currentOscillator === osc) {
+        this.currentOscillator = null;
+      }
+      if (this.currentGain === gain) {
+        this.currentGain = null;
+      }
+    };
   }
 }
 

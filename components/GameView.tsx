@@ -29,9 +29,11 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
   const [linePresses, setLinePresses] = useState<number>(0);
   const insertsInCurrentLineRef = useRef<number>(0);
 
-  const config = DIFFICULTY_CONFIG[difficulty];
   const fullPoem = getPoemForAuthor(author);
-  const poem = fullPoem.slice(0, config.stanzas * 4);
+  // Выбираем фрагменты в зависимости от сложности:
+  // EASY - только первый фрагмент, MEDIUM - первые два, HARD - все три
+  const fragmentsCount = difficulty === Difficulty.EASY ? 1 : difficulty === Difficulty.MEDIUM ? 2 : 3;
+  const poem = fullPoem.slice(0, fragmentsCount).flat();
   
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -102,9 +104,9 @@ export const GameView: React.FC<GameViewProps> = ({ author, difficulty, gameStat
               }
 
               const poemBeat = currentBeat - 4;
-              // Каждая строка занимает 8 битов
-              if (poemBeat >= 0 && poemBeat % 8 === 0) {
-                const nextIdx = Math.floor(poemBeat / 8);
+              // Каждая строка занимает 4 бита (один такт)
+              if (poemBeat >= 0 && poemBeat % 4 === 0) {
+                const nextIdx = Math.floor(poemBeat / 4);
                 if (nextIdx < poem.length) {
                   if (nextIdx !== currentLineIndexRef.current) {
                     currentLineIndexRef.current = nextIdx;
